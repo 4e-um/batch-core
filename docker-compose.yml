@@ -47,8 +47,9 @@ services:
       POSTGRES_DATABASE: app
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      MONGO_URI: mongodb://mongo:mongo@mongodb:27017/app?authSource=admin
-      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/YOUR/WEBHOOK/URL}
+      MONGO_URI: mongodb://mongo:mongo@mongodb:27017/?authSource=admin
+      MONGO_DATABASE: app
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
 
 volumes:
   postgres_data:

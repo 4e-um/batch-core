@@ -2,7 +2,8 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
-      uri: ${MONGO_URI:mongodb://localhost:27017/app}
+      uri: ${MONGO_URI:mongodb://localhost:27017}
+      database: ${MONGO_DATABASE:app}
 
 logging:
   level:
@@ -17,7 +18,8 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
-      uri: mongodb://localhost:27017/app
+      uri: mongodb://localhost:27017
+      database: app
 
 logging:
   level:
