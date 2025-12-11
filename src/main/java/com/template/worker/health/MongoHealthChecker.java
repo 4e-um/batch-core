@@ -19,7 +19,9 @@ public class MongoHealthChecker {
         try {
             Document result = mongoTemplate.getDb().runCommand(new Document("ping", 1));
 
-            boolean isOk = result.getDouble("ok") == 1.0;
+            // ok 필드가 Integer 또는 Double로 반환될 수 있음
+            Number okValue = (Number) result.get("ok");
+            boolean isOk = okValue != null && okValue.doubleValue() == 1.0;
             long responseTime = System.currentTimeMillis() - startTime;
 
             return HealthCheckResult.builder()
