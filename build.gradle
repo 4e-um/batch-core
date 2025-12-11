@@ -1,0 +1,106 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.0'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'checkstyle'
+	id 'jacoco'
+	id 'org.sonarqube' version '5.1.0.4882'
+	id 'com.diffplug.spotless' version '6.25.0'
+}
+
+group = 'com.template'
+version = '0.0.1-SNAPSHOT'
+description = 'Template Worker'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.batch:spring-batch-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'com.h2database:h2'
+}
+
+// ============================================================================
+// Spotless
+// ============================================================================
+spotless {
+	java {
+		target 'src/*/java/**/*.java'
+		importOrder()
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+		googleJavaFormat('1.19.2').aosp()
+	}
+}
+
+// ============================================================================
+// Checkstyle
+// ============================================================================
+checkstyle {
+	toolVersion = '10.20.1'
+	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+	configProperties = ['suppressionFile': "${rootDir}/config/checkstyle/suppressions.xml"]
+	ignoreFailures = false
+	maxWarnings = 0
+}
+
+// ============================================================================
+// JaCoCo
+// ============================================================================
+jacoco {
+	toolVersion = '0.8.12'
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		html.required = true
+	}
+}
+
+// ============================================================================
+// SonarQube
+// ============================================================================
+sonar {
+	properties {
+		property 'sonar.projectKey', System.getenv('SONAR_PROJECT') ?: 'template-worker'
+		property 'sonar.organization', System.getenv('SONAR_ORGANIZATION') ?: 'default'
+		property 'sonar.host.url', System.getenv('SONAR_HOST_URL') ?: 'https://sonarcloud.io'
+		property 'sonar.sourceEncoding', 'UTF-8'
+		property 'sonar.sources', 'src/main/java'
+		property 'sonar.tests', 'src/test/java'
+		property 'sonar.java.coveragePlugin', 'jacoco'
+		property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}

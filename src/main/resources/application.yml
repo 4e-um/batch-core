@@ -1,0 +1,48 @@
+project:
+  name: Template Worker
+  version: 1.0.0
+
+spring:
+  config:
+    import:
+      - postgres.yml
+      - mongo.yml
+      - batch.yml
+  application:
+    name: template-worker
+
+logging:
+  level:
+    root: INFO
+    org.springframework.batch: INFO
+    com.template.worker: INFO
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+
+logging:
+  level:
+    root: DEBUG
+    com.template.worker: DEBUG
+    org.springframework.batch: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: INFO
+    org.springframework.batch: INFO
+    com.template.worker: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

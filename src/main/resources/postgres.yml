@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DATABASE:app}
+    username: ${POSTGRES_USER:kimdoyeon}
+    password: ${POSTGRES_PASSWORD:}
+    hikari:
+      max-lifetime: 300000
+      validation-timeout: 5000
+      keepalive-time: 30000
+
+---
+spring.config.activate.on-profile: local
+
+logging:
+  level:
+    ROOT: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.sql: debug
+    org.hibernate.type: trace
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    org.postgresql: TRACE
+
