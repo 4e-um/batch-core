@@ -1,0 +1,88 @@
+# ============================================================================
+# Worker Integration Workflow
+# ============================================================================
+# 역할:
+#   - 소스 코드 포맷 검사 (Spotless)
+#   - 소스 코드 정적 분석 (Checkstyle)
+#   - 테스트 수행 및 JaCoCo 커버리지 생성
+#   - SonarCloud 코드 품질/커버리지/보안 분석
+#
+# GitHub Secrets:
+#   - SONAR_TOKEN        : SonarCloud Token
+#
+# GitHub Variables (Settings > Secrets and variables > Actions > Variables):
+#   - SONAR_ORGANIZATION : SonarCloud Organization Key
+#   - SONAR_PROJECT      : SonarCloud Project Key
+#   - SONAR_HOST_URL     : SonarCloud Host (https://sonarcloud.io)
+# ============================================================================
+
+name: Integrate Worker
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  integrate:
+    name: Worker Integration Pipeline
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: write
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # SonarCloud 분석을 위해 전체 히스토리 필요
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: gradle
+
+      - name: Grant execution to Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck
+
+      - name: Run Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest
+
+      - name: Run Tests with JaCoCo
+        run: ./gradlew test jacocoTestReport
+
+      - name: SonarCloud Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+          SONAR_PROJECT: ${{ vars.SONAR_PROJECT }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        run: ./gradlew sonar -Dsonar.host.url=$SONAR_HOST_URL
+
+      - name: Build Spring Boot JAR
+        run: ./gradlew bootJar
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker-app
+          path: build/libs/*.jar
+
+      - name: Integration Summary
+        run: |
+          echo "## Worker Integration Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch** : ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit** : ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status** : Build Successful" >> $GITHUB_STEP_SUMMARY
