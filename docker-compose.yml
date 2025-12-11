@@ -47,11 +47,7 @@ services:
       POSTGRES_DATABASE: app
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      MONGO_HOST: mongodb
-      MONGO_PORT: 27017
-      MONGO_DATABASE: app
-      MONGO_USER: mongo
-      MONGO_PASSWORD: mongo
+      MONGO_URI: mongodb://mongo:mongo@mongodb:27017/app?authSource=admin
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/YOUR/WEBHOOK/URL}
 
 volumes:
