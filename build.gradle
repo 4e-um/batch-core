@@ -28,6 +28,20 @@ repositories {
     mavenCentral()
 }
 
+// ============================================================================
+// 커버리지 제외 패턴 (JaCoCo, SonarQube 공통)
+// ============================================================================
+def coverageExcludePatterns = [
+    '**/config/**',      // Config 클래스 제외
+    '**/exception/**',   // Exception 클래스 제외
+    '**/dto/**',         // DTO 클래스 제외
+    '**/example/**',     // 예제 코드 제외
+    '**/launcher/**',    // Batch Launcher 제외
+    '**/listener/**',    // Batch Listener 제외
+]
+def coverageExcludeClasses = coverageExcludePatterns + ['**/*Application.class']
+def coverageExcludeSonar = coverageExcludePatterns.collect { it + '/*.java' } + ['**/*Application.java']
+
 dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-batch'
@@ -79,15 +93,7 @@ jacocoTestReport {
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                '**/config/**',      // Config 클래스 제외
-                '**/exception/**',   // Exception 클래스 제외
-                '**/dto/**',         // DTO 클래스 제외
-                '**/example/**',     // 예제 코드 제외
-                '**/launcher/**',    // Batch Launcher 제외
-                '**/listener/**',    // Batch Listener 제외
-                '**/*Application.class'  // 메인 클래스 제외
-            ])
+            fileTree(dir: it, exclude: coverageExcludeClasses)
         }))
     }
 }
@@ -103,15 +109,7 @@ jacocoTestCoverageVerification {
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                '**/config/**',
-                '**/exception/**',
-                '**/dto/**',
-                '**/example/**',
-                '**/launcher/**',
-                '**/listener/**',
-                '**/*Application.class'
-            ])
+            fileTree(dir: it, exclude: coverageExcludeClasses)
         }))
     }
 }
@@ -148,12 +146,6 @@ sonar {
         property 'sonar.projectName', 'batch'
         property 'sonar.java.coveragePlugin', 'jacoco'
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
-        // 커버리지 제외 (JaCoCo와 동일)
-        property 'sonar.coverage.exclusions', [
-            '**/config/**/*.java',
-            '**/exception/**/*.java',
-            '**/dto/**/*.java',
-            '**/Application.java'
-        ].join(',')
+        property 'sonar.coverage.exclusions', coverageExcludeSonar.join(',')
     }
 }
