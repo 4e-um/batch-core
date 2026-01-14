@@ -9,18 +9,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Batch 운영용 관리자 컨트롤러
- * - 운영자가 수동으로 배치를 실행하거나 외부 스케줄러가 배치를 트리거할 때 사용
- * - 모든 배치는 jobName + 파라미터 기반으로 실행
+ * Batch 운영용 관리자 컨트롤러 - 운영자가 수동으로 배치를 실행하거나 외부 스케줄러가 배치를 트리거할 때 사용 - 모든 배치는 jobName + 파라미터 기반으로 실행
  */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/batch")
 public class BatchAdminController {
-    private final BatchAdminService service;
+  private final BatchAdminService service;
 
-    @PostMapping("/run")
-    public void run(@RequestBody RunBatchRequest request) throws Exception {
-        service.run(request);
-    }
+  @PostMapping("/run")
+  public void run(@RequestBody RunBatchRequest request) throws Exception {
+    service.run(request);
+  }
 }

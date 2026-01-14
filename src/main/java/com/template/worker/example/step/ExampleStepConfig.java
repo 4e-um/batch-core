@@ -11,27 +11,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/**
- * 하나의 Job은 하나 이상의 Step으로 구성된다.
- * Chunk 기반 Step의 기본 구조를 보여주는 예시이다.
- */
+/** 하나의 Job은 하나 이상의 Step으로 구성된다. Chunk 기반 Step의 기본 구조를 보여주는 예시이다. */
 @Configuration
 @RequiredArgsConstructor
 public class ExampleStepConfig {
 
-    private final JobRepository jobRepository;
-    private final PlatformTransactionManager transactionManager;
-    private final ExampleItemReader reader;
-    private final ExampleItemProcessor processor;
-    private final ExampleItemWriter writer;
+  private final JobRepository jobRepository;
+  private final PlatformTransactionManager transactionManager;
+  private final ExampleItemReader reader;
+  private final ExampleItemProcessor processor;
+  private final ExampleItemWriter writer;
 
-    @Bean
-    public Step exampleStep() {
-        return new StepBuilder("example-step", jobRepository)
-                .<String, String>chunk(100, transactionManager)
-                .reader(reader)
-                .processor(processor)
-                .writer(writer)
-                .build();
-    }
+  @Bean
+  public Step exampleStep() {
+    return new StepBuilder("example-step", jobRepository)
+        .<String, String>chunk(100, transactionManager)
+        .reader(reader)
+        .processor(processor)
+        .writer(writer)
+        .build();
+  }
 }

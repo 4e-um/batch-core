@@ -5,16 +5,13 @@ import com.template.worker.global.launcher.BatchJobLauncher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/**
- * Batch 실행을 담당하는 서비스 레이어
- * - 실제 배치 실행은 BatchJobLauncher에 위임한다.
- */
+/** Batch 실행을 담당하는 서비스 레이어 - 실제 배치 실행은 BatchJobLauncher에 위임한다. */
 @Service
 @RequiredArgsConstructor
 public class BatchAdminService {
-    private final BatchJobLauncher launcher;
+  private final BatchJobLauncher launcher;
 
-    public void run(RunBatchRequest request) throws Exception {
-        launcher.run(request.getJobName(), request.getParams());
-    }
+  public void run(RunBatchRequest request) throws Exception {
+    launcher.run(request.getJobName(), request.getParams());
+  }
 }

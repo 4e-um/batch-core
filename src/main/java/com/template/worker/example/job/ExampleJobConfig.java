@@ -9,21 +9,19 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * 이 클래스를 복사하여 실제 배치 Job을 만든다.
- */
+/** 이 클래스를 복사하여 실제 배치 Job을 만든다. */
 @Configuration
 @RequiredArgsConstructor
 public class ExampleJobConfig {
-    private final JobRepository jobRepository;
-    private final JobResultListener jobResultListener;
-    private final ExampleStepConfig stepConfig;
+  private final JobRepository jobRepository;
+  private final JobResultListener jobResultListener;
+  private final ExampleStepConfig stepConfig;
 
-    @Bean
-    public Job exampleJob() {
-        return new JobBuilder("example-job", jobRepository)
-                .listener(jobResultListener)
-                .start(stepConfig.exampleStep())
-                .build();
-    }
+  @Bean
+  public Job exampleJob() {
+    return new JobBuilder("example-job", jobRepository)
+        .listener(jobResultListener)
+        .start(stepConfig.exampleStep())
+        .build();
+  }
 }
