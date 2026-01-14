@@ -1,0 +1,101 @@
+name: PR Size Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  size-label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Label PR by Size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            // PR의 변경 사항 가져오기
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const additions = pr.additions;
+            const deletions = pr.deletions;
+            const totalChanges = additions + deletions;
+
+            console.log(`📊 PR #${prNumber} 변경 통계`);
+            console.log(`   추가: +${additions}`);
+            console.log(`   삭제: -${deletions}`);
+            console.log(`   총 변경: ${totalChanges} lines`);
+
+            // 크기별 라벨 정의
+            const sizeLabels = {
+              'size/XS': { max: 10, color: '3CBF00' },
+              'size/S': { max: 50, color: '5D9801' },
+              'size/M': { max: 200, color: 'FBCA04' },
+              'size/L': { max: 500, color: 'FFA500' },
+              'size/XL': { max: Infinity, color: 'D93F0B' }
+            };
+
+            // 적절한 라벨 선택
+            let selectedLabel = 'size/XL';
+            for (const [label, config] of Object.entries(sizeLabels)) {
+              if (totalChanges <= config.max) {
+                selectedLabel = label;
+                break;
+              }
+            }
+
+            console.log(`🏷️ 선택된 라벨: ${selectedLabel}`);
+
+            // 기존 size 라벨 제거
+            const { data: currentLabels } = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+
+            for (const label of currentLabels) {
+              if (label.name.startsWith('size/')) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  name: label.name
+                });
+              }
+            }
+
+            // 라벨이 존재하는지 확인하고 없으면 생성
+            try {
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: selectedLabel
+              });
+            } catch (error) {
+              if (error.status === 404) {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: selectedLabel,
+                  color: sizeLabels[selectedLabel].color,
+                  description: `PR size: ${selectedLabel.replace('size/', '')}`
+                });
+              }
+            }
+
+            // 새 라벨 추가
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: [selectedLabel]
+            });
+
+            console.log(`✅ 라벨 적용 완료: ${selectedLabel}`);

@@ -1,0 +1,44 @@
+name: Stale PR Check
+
+on:
+  schedule:
+    # 매일 오전 9시 (KST) 실행 = UTC 0시
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Mark Stale PRs
+        uses: actions/stale@v9
+        with:
+          # PR 설정
+          stale-pr-message: |
+            ⚠️ 이 PR은 **1일** 동안 활동이 없어 stale로 표시되었습니다.
+
+            리뷰가 필요하거나 작업 중인 경우 코멘트를 남겨주세요.
+            더 이상 필요하지 않은 경우 PR을 닫아주세요.
+
+          stale-pr-label: 'stale'
+          days-before-pr-stale: 1
+          days-before-pr-close: -1  # 자동 close 비활성화
+
+          # Issue는 처리하지 않음
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
+
+          # stale 라벨 해제 조건
+          remove-stale-when-updated: true
+
+          # 제외할 라벨
+          exempt-pr-labels: 'wip,blocked,do-not-close'
+
+          # Draft PR 제외
+          exempt-draft-pr: true
+
+          # 처리할 PR 수
+          operations-per-run: 30

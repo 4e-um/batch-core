@@ -1,0 +1,64 @@
+name: Approval Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+jobs:
+  check-approval:
+    runs-on: ubuntu-latest
+    name: Approval Check
+
+    steps:
+      - name: Check PR Approval Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request?.number || context.payload.review?.pull_request?.number;
+            const prAuthor = context.payload.pull_request?.user?.login || context.payload.review?.pull_request?.user?.login;
+
+            if (!prNumber) {
+              core.setFailed('PR 번호를 찾을 수 없습니다.');
+              return;
+            }
+
+            console.log(`📋 PR #${prNumber} 승인 상태 확인 중...`);
+            console.log(`   작성자: ${prAuthor}`);
+
+            // PR의 모든 리뷰 가져오기
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            // 각 리뷰어의 최신 리뷰 상태만 확인
+            const latestReviews = {};
+            for (const review of reviews) {
+              const reviewer = review.user.login;
+              // PR 작성자의 리뷰는 무시
+              if (reviewer.toLowerCase() === prAuthor.toLowerCase()) {
+                continue;
+              }
+              // 더 최신 리뷰로 덮어쓰기
+              if (!latestReviews[reviewer] || new Date(review.submitted_at) > new Date(latestReviews[reviewer].submitted_at)) {
+                latestReviews[reviewer] = review;
+              }
+            }
+
+            // APPROVED 상태인 리뷰 수 계산
+            const approvals = Object.values(latestReviews).filter(r => r.state === 'APPROVED');
+
+            console.log(`   승인 수: ${approvals.length}`);
+            if (approvals.length > 0) {
+              console.log(`   승인자: ${approvals.map(r => r.user.login).join(', ')}`);
+            }
+
+            if (approvals.length >= 1) {
+              console.log('✅ 필요한 승인을 받았습니다.');
+            } else {
+              core.setFailed('❌ 최소 1명의 승인이 필요합니다. (PR 작성자 제외)');
+            }
