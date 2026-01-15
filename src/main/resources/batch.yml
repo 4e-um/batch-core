@@ -1,11 +1,29 @@
 spring:
   batch:
-    job:
-      enabled: true
-      name: healthCheckJob
     jdbc:
       initialize-schema: always
 
-slack:
-  webhook:
-    url: ${SLACK_WEBHOOK_URL:https://hooks.slack.com/services/YOUR/WEBHOOK/URL}
+    # Chunk 전략
+    chunk:
+      invoiceitem: 1000
+      invoice: 1000
+
+    # Retry 정책
+    retry:
+      max-attempts: 3
+      backoff-ms: 2000
+
+    # Skip 정책
+    skip:
+      max-count: 1000
+
+    # 공통 Step Thread Pool (추후 병렬처리 대비)
+    thread:
+      core-pool-size: 4
+      max-pool-size: 8
+      queue-capacity: 1000
+
+    # Partition 병렬도 제어
+    partition:
+      invoiceitem: 4
+      invoice: 4
