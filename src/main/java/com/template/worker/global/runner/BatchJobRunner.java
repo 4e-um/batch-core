@@ -10,10 +10,12 @@ import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@Profile("!test") // ⭐ test 프로파일에서는 로딩되지 않음
 @RequiredArgsConstructor
 public class BatchJobRunner implements ApplicationRunner {
 
@@ -29,20 +31,20 @@ public class BatchJobRunner implements ApplicationRunner {
                         .findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("Missing --spring.batch.job.name"));
 
-        String billingYm =
-                args.getOptionValues("billingYm").stream()
+        String invMonth =
+                args.getOptionValues("invMonth").stream()
                         .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Missing billingYm=yyyyMM"));
+                        .orElseThrow(() -> new IllegalArgumentException("Missing invMonth=yyyyMM"));
 
         Job job = jobRegistry.getJob(jobName);
 
         JobParameters params =
                 new JobParametersBuilder(jobExplorer)
-                        .addString("billingYm", billingYm)
+                        .addString("invMonth", invMonth)
                         .addLong("run.id", System.currentTimeMillis())
                         .toJobParameters();
 
-        log.info("▶ BATCH START job={} billingYm={}", jobName, billingYm);
+        log.info("▶ BATCH START job={} invMonth={}", jobName, invMonth);
         batchJobLauncher.launch(job, params);
     }
 }

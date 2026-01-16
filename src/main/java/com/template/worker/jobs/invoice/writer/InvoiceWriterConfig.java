@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @RequiredArgsConstructor
-public class InvoiceWriter {
+public class InvoiceWriterConfig {
 
     private final DataSource dataSource;
 
@@ -28,20 +28,41 @@ public class InvoiceWriter {
                 .dataSource(dataSource)
                 .sql("""
                     INSERT INTO invoice (
-                        sub_id,
-                        inv_month,
-                        total_amount,
-                        total_discount,
-                        total_price,
-                        created_at
-                    ) VALUES (
-                        :subId,
-                        :invMonth,
-                        :totalAmount,
-                        :totalDiscount,
-                        :totalPrice,
-                        now()
-                    )
+                                inv_id,
+                                inv_no,
+                                sub_id,
+                                name,
+                                phone_enc,
+                                email_enc,
+                                inv_month,
+                                total_amount,
+                                total_discount,
+                                total_price,
+                                start_date,
+                                end_date,
+                                due_date,
+                                created_at
+                            )
+                            SELECT
+                                nextval('invoice_id_seq'),
+                                nextval('invoice_no_seq'),
+                                s.sub_id,
+                                c.name,
+                                c.contact_enc,
+                                c.email_enc,
+                                :invMonth,
+                                :totalAmount,
+                                :totalDiscount,
+                                :totalPrice,
+                                to_date(:invMonth,'YYYYMM'),
+                                to_date(:invMonth,'YYYYMM') + interval '1 month' - interval '1 second',
+                                to_date(:invMonth,'YYYYMM') + interval '1 month' - interval '1 second',
+                                now() AT TIME ZONE 'Asia/Seoul'
+                            FROM subscription s
+                            JOIN customer c
+                            ON s.customer_id = c.customer_id
+                            WHERE s.sub_id = :subId
+                            ON CONFLICT (sub_id, inv_month) DO NOTHING;
                 """)
                 .itemSqlParameterSourceProvider(item -> {
                     MapSqlParameterSource params = new MapSqlParameterSource();
@@ -49,7 +70,7 @@ public class InvoiceWriter {
                     params.addValue("invMonth", invMonth);
                     params.addValue("totalAmount", item.getTotalAmount());
                     params.addValue("totalDiscount", item.getTotalDiscount());
-                    params.addValue("totalPrice", item.getTotalAmount()-item.getTotalDiscount());
+                    params.addValue("totalPrice", item.getTotalPrice());
                     return params;
                 })
                 .build();

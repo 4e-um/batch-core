@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class InvoiceItemRow {
+public class InvoiceAggregationRow {
 
     private Long subId;
-    private String billingYm;
-    private Long amount;   // +/-
+    private Long totalAmount;
+    private Long totalDiscount;
 }
