@@ -8,7 +8,7 @@ spring:
       - postgres.yml
       - batch.yml
   application:
-    name: template-worker
+    name: batch-core
 
   main:
     time-zone: Asia/Seoul
@@ -19,17 +19,40 @@ spring:
       job:
         enabled: false
 
-  logging:
-    level:
-      root: INFO
-      org.springframework.batch: INFO
-      com.template.worker: INFO
+server:
+  port: 8080
 
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: health,info
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: ${OTEL_SAMPLING_PROBABILITY:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.batch: INFO
+    com.template.worker: INFO
 
 ---
 

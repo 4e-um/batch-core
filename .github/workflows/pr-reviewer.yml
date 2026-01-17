@@ -11,6 +11,9 @@ jobs:
     # Draft PR은 건너뛰기
     if: github.event.pull_request.draft == false
 
+    permissions:
+      pull-requests: write
+
     steps:
       - name: Auto Assign Reviewer
         uses: actions/github-script@v7

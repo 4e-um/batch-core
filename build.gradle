@@ -141,8 +141,8 @@ spotless {
 // ============================================================================
 sonar {
     properties {
-        property 'sonar.projectKey', 'batch'
-        property 'sonar.projectName', 'batch'
+        property 'sonar.projectKey', 'batch-core'
+        property 'sonar.projectName', 'batch-core'
         property 'sonar.java.coveragePlugin', 'jacoco'
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
         property 'sonar.coverage.exclusions', coverageExcludeSonar.join(',')
