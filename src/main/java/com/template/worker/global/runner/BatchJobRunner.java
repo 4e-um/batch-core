@@ -17,32 +17,32 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BatchJobRunner implements ApplicationRunner {
 
-    private final BatchJobLauncher batchJobLauncher;
-    private final JobRegistry jobRegistry;
-    private final JobExplorer jobExplorer;
+  private final BatchJobLauncher batchJobLauncher;
+  private final JobRegistry jobRegistry;
+  private final JobExplorer jobExplorer;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
+  @Override
+  public void run(ApplicationArguments args) throws Exception {
 
-        String jobName =
-                args.getOptionValues("spring.batch.job.name").stream()
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Missing --spring.batch.job.name"));
+    String jobName =
+        args.getOptionValues("spring.batch.job.name").stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Missing --spring.batch.job.name"));
 
-        String billingYm =
-                args.getOptionValues("billingYm").stream()
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Missing billingYm=yyyyMM"));
+    String billingYm =
+        args.getOptionValues("billingYm").stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Missing billingYm=yyyyMM"));
 
-        Job job = jobRegistry.getJob(jobName);
+    Job job = jobRegistry.getJob(jobName);
 
-        JobParameters params =
-                new JobParametersBuilder(jobExplorer)
-                        .addString("billingYm", billingYm)
-                        .addLong("run.id", System.currentTimeMillis())
-                        .toJobParameters();
+    JobParameters params =
+        new JobParametersBuilder(jobExplorer)
+            .addString("billingYm", billingYm)
+            .addLong("run.id", System.currentTimeMillis())
+            .toJobParameters();
 
-        log.info("▶ BATCH START job={} billingYm={}", jobName, billingYm);
-        batchJobLauncher.launch(job, params);
-    }
+    log.info("▶ BATCH START job={} billingYm={}", jobName, billingYm);
+    batchJobLauncher.launch(job, params);
+  }
 }

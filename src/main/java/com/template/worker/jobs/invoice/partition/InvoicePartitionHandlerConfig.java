@@ -13,18 +13,18 @@ import org.springframework.core.task.TaskExecutor;
 @RequiredArgsConstructor
 public class InvoicePartitionHandlerConfig {
 
-    private final InvoiceWorkerStepConfig workerStep;
-    private final TaskExecutor batchPartitionExecutor;
+  private final InvoiceWorkerStepConfig workerStep;
+  private final TaskExecutor batchPartitionExecutor;
 
-    @Value("${spring.batch.partition.invoice}")
-    private int gridSize;
+  @Value("${spring.batch.partition.invoice}")
+  private int gridSize;
 
-    @Bean
-    public PartitionHandler invoicePartitionHandler() {
-        TaskExecutorPartitionHandler h = new TaskExecutorPartitionHandler();
-        h.setStep(workerStep.invoiceWorkerStep());
-        h.setTaskExecutor(batchPartitionExecutor);
-        h.setGridSize(gridSize);
-        return h;
-    }
+  @Bean
+  public PartitionHandler invoicePartitionHandler() {
+    TaskExecutorPartitionHandler h = new TaskExecutorPartitionHandler();
+    h.setStep(workerStep.invoiceWorkerStep());
+    h.setTaskExecutor(batchPartitionExecutor);
+    h.setGridSize(gridSize);
+    return h;
+  }
 }

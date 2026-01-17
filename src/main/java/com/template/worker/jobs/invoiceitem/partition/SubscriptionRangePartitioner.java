@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SubscriptionRangePartitioner implements Partitioner {
-    @Override
-    public Map<String, ExecutionContext> partition(int gridSize) {
-        return Map.of("partition0", new ExecutionContext());
-    }
+  @Override
+  public Map<String, ExecutionContext> partition(int gridSize) {
+    return Map.of("partition0", new ExecutionContext());
+  }
 }
