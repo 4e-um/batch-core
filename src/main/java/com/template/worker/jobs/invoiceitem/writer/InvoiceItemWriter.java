@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InvoiceItemWriter implements ItemWriter<InvoiceItemEntity> {
-    @Override
-    public void write(Chunk<? extends InvoiceItemEntity> chunk) throws Exception {}
+  @Override
+  public void write(Chunk<? extends InvoiceItemEntity> chunk) throws Exception {}
 }

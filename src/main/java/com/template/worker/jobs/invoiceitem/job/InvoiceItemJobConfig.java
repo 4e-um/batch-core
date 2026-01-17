@@ -16,17 +16,17 @@ import org.springframework.context.annotation.Configuration;
 @EnableBatchProcessing
 public class InvoiceItemJobConfig {
 
-    private final JobRepository jobRepository;
-    private final JobParameterValidator jobParametersValidator;
-    private final JobResultListener jobResultListener;
-    private final InvoiceItemPartitionStepConfig partitionStep;
+  private final JobRepository jobRepository;
+  private final JobParameterValidator jobParametersValidator;
+  private final JobResultListener jobResultListener;
+  private final InvoiceItemPartitionStepConfig partitionStep;
 
-    @Bean
-    public Job invoiceItemJob() {
-        return new JobBuilder("invoiceItemJob", jobRepository)
-                .validator(jobParametersValidator)
-                .listener(jobResultListener)
-                .start(partitionStep.invoiceItemPartitionStep())
-                .build();
-    }
+  @Bean
+  public Job invoiceItemJob() {
+    return new JobBuilder("invoiceItemJob", jobRepository)
+        .validator(jobParametersValidator)
+        .listener(jobResultListener)
+        .start(partitionStep.invoiceItemPartitionStep())
+        .build();
+  }
 }
