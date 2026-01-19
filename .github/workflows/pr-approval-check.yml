@@ -12,21 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     name: Approval Check
 
+    permissions:
+      pull-requests: read
+      checks: write
+
     steps:
       - name: Check PR Approval Status
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = context.payload.pull_request?.number || context.payload.review?.pull_request?.number;
-            const prAuthor = context.payload.pull_request?.user?.login || context.payload.review?.pull_request?.user?.login;
+            const pr = context.payload.pull_request || context.payload.review.pull_request;
+            const prNumber = pr.number;
+            const prAuthor = pr.user.login;
+            const headSha = pr.head.sha;
 
-            if (!prNumber) {
-              core.setFailed('PR 번호를 찾을 수 없습니다.');
-              return;
-            }
-
-            console.log(`📋 PR #${prNumber} 승인 상태 확인 중...`);
+            console.log(`PR #${prNumber} 승인 상태 확인 중...`);
             console.log(`   작성자: ${prAuthor}`);
+            console.log(`   현재 HEAD: ${headSha}`);
 
             // PR의 모든 리뷰 가져오기
             const { data: reviews } = await github.rest.pulls.listReviews({
@@ -44,21 +46,46 @@ jobs:
                 continue;
               }
               // 더 최신 리뷰로 덮어쓰기
-              if (!latestReviews[reviewer] || new Date(review.submitted_at) > new Date(latestReviews[reviewer].submitted_at)) {
+              if (!latestReviews[reviewer] ||
+                  new Date(review.submitted_at) > new Date(latestReviews[reviewer].submitted_at)) {
                 latestReviews[reviewer] = review;
               }
             }
 
-            // APPROVED 상태인 리뷰 수 계산
-            const approvals = Object.values(latestReviews).filter(r => r.state === 'APPROVED');
+            // APPROVED 상태이면서 현재 HEAD 커밋에 대한 리뷰만 유효
+            // (새 커밋이 push되면 이전 커밋에 대한 approval은 stale 처리)
+            const approvals = Object.values(latestReviews).filter(r =>
+              r.state === 'APPROVED' && r.commit_id === headSha
+            );
+            const staleApprovals = Object.values(latestReviews).filter(r =>
+              r.state === 'APPROVED' && r.commit_id !== headSha
+            );
+            const isApproved = approvals.length >= 1;
 
-            console.log(`   승인 수: ${approvals.length}`);
+            console.log(`   유효한 승인 수: ${approvals.length}`);
             if (approvals.length > 0) {
               console.log(`   승인자: ${approvals.map(r => r.user.login).join(', ')}`);
             }
-
-            if (approvals.length >= 1) {
-              console.log('✅ 필요한 승인을 받았습니다.');
-            } else {
-              core.setFailed('❌ 최소 1명의 승인이 필요합니다. (PR 작성자 제외)');
+            if (staleApprovals.length > 0) {
+              console.log(`   만료된 승인 (이전 커밋): ${staleApprovals.map(r => r.user.login).join(', ')}`);
             }
+
+            // Checks API로 체크 상태 직접 업데이트
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'PR Approval',
+              head_sha: headSha,
+              status: 'completed',
+              conclusion: isApproved ? 'success' : 'failure',
+              output: {
+                title: isApproved ? 'Approved' : 'Approval Required',
+                summary: isApproved
+                  ? `승인자: ${approvals.map(r => r.user.login).join(', ')}`
+                  : staleApprovals.length > 0
+                    ? `최소 1명의 승인이 필요합니다.\n만료된 승인 (새 커밋으로 인해 무효화): ${staleApprovals.map(r => r.user.login).join(', ')}`
+                    : '최소 1명의 승인이 필요합니다. (PR 작성자 제외)'
+              }
+            });
+
+            console.log(isApproved ? 'Approved: 필요한 승인을 받았습니다.' : 'Pending: 승인 대기 중');

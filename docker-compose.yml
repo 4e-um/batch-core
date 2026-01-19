@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: template-postgres
+    container_name: batch-core-postgres
     environment:
       POSTGRES_DB: app
       POSTGRES_USER: postgres
@@ -18,7 +18,7 @@ services:
 
   mongodb:
     image: mongo:7-jammy
-    container_name: template-mongodb
+    container_name: batch-core-mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo
@@ -35,7 +35,7 @@ services:
 
   worker:
     build: .
-    container_name: template-worker
+    container_name: batch-core-worker
     depends_on:
       postgres:
         condition: service_healthy

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InvoiceProcessor implements ItemProcessor<InvoiceItemRow, InvoiceEntity> {
-    @Override
-    public InvoiceEntity process(InvoiceItemRow item) throws Exception {
-        return null;
-    }
+  @Override
+  public InvoiceEntity process(InvoiceItemRow item) throws Exception {
+    return null;
+  }
 }

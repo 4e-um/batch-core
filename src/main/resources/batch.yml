@@ -18,10 +18,10 @@ spring:
         chunk-size: 3000
         page-size: 3000
         partition:
-          grid-size: 12
+          grid-size: 6
           thread:
-            core-pool-size: 12
-            max-pool-size: 16
+            core-pool-size: 6
+            max-pool-size: 8
             queue-capacity: 1000
 
       # 2. 청구서 생성 Job (InvoiceJob)

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class InvoiceReader implements ItemReader<InvoiceItemRow> {
-    @Override
-    public InvoiceItemRow read()
-            throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
-        return null;
-    }
+  @Override
+  public InvoiceItemRow read()
+      throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+    return null;
+  }
 }
