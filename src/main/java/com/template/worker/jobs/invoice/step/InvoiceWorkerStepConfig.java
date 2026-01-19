@@ -24,7 +24,7 @@ public class InvoiceWorkerStepConfig {
   private final InvoiceProcessor processor;
   private final InvoiceWriter writer;
 
-  @Value("${spring.batch.chunk.invoice}")
+  @Value("${spring.batch.jobs.invoice.chunk-size}")
   int chunk;
 
   @Bean
