@@ -26,9 +26,9 @@ public class CustomerRangePartitioner implements Partitioner {
         long maxSubId;
 
         try (Connection con = dataSource.getConnection();
-             PreparedStatement ps =
-                     con.prepareStatement("select min(sub_id), max(sub_id) from invoice_item");
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps =
+                        con.prepareStatement("select min(sub_id), max(sub_id) from invoice_item");
+                ResultSet rs = ps.executeQuery()) {
             rs.next();
             minSubId = rs.getLong(1);
             maxSubId = rs.getLong(2);

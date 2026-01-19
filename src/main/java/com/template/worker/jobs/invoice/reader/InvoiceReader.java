@@ -56,7 +56,8 @@ public class InvoiceReader {
                                 SUM(CASE WHEN value < 0 THEN ABS(value) ELSE 0 END) AS total_discount
                         """);
 
-        queryProvider.setFromClause("""
+        queryProvider.setFromClause(
+                """
                     FROM invoice_item_test
                 """);
 
