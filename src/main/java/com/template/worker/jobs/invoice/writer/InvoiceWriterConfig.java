@@ -23,11 +23,10 @@ public class InvoiceWriterConfig {
     public JdbcBatchItemWriter<InvoiceEntity> invoiceWriter(
             @Value("#{jobParameters[invMonth]}") String invMonth
     ) {
-
         return new JdbcBatchItemWriterBuilder<InvoiceEntity>()
                 .dataSource(dataSource)
                 .sql("""
-                    INSERT INTO invoice (
+                    INSERT INTO invoice_test (
                                 inv_no,
                                 sub_id,
                                 name,
@@ -52,14 +51,18 @@ public class InvoiceWriterConfig {
                                 :totalAmount,
                                 :totalDiscount,
                                 :totalPrice,
-                                to_date(:invMonth,'YYYYMM'),
-                                to_date(:invMonth,'YYYYMM') + interval '1 month' - interval '1 second',
-                                to_date(:invMonth,'YYYYMM') + interval '1 month' - interval '1 second',
+                                -- 시작일: 전월 1일
+                                to_date(:invMonth, 'YYYYMM') - interval '1 month',
+                                -- 마감일: 전월 말일 23:59:59
+                                to_date(:invMonth, 'YYYYMM') - interval '1 second',
+                                -- 납기일: 당월 말일 23:59:59
+                                to_date(:invMonth, 'YYYYMM') + interval '1 month' - interval '1 second',
                                 now() AT TIME ZONE 'Asia/Seoul'
                             FROM subscription s
                             JOIN customer c
                             ON s.customer_id = c.customer_id
                             WHERE s.sub_id = :subId
+                            -- 중복 방지 (sub_id + inv_month 조합)
                             ON CONFLICT (sub_id, inv_month) DO NOTHING;
                 """)
                 .itemSqlParameterSourceProvider(item -> {
@@ -71,6 +74,7 @@ public class InvoiceWriterConfig {
                     params.addValue("totalPrice", item.getTotalPrice());
                     return params;
                 })
+                .assertUpdates(false) // ON CONFLICT로 인해 0건 반영되어도 예외 무시
                 .build();
     }
 }
