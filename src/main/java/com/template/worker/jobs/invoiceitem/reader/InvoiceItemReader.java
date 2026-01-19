@@ -1,12 +1,12 @@
 package com.template.worker.jobs.invoiceitem.reader;
 
-import com.template.worker.jobs.invoiceitem.model.InvoiceItemAggregateRow;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+
 import javax.sql.DataSource;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.Order;
@@ -17,66 +17,76 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.template.worker.jobs.invoiceitem.model.InvoiceItemAggregateRow;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @RequiredArgsConstructor
 public class InvoiceItemReader {
 
-  private final DataSource dataSource;
-  private final InvoiceItemQueryProvider queryProvider;
+    private final DataSource dataSource;
+    private final InvoiceItemQueryProvider queryProvider;
 
-  @Bean
-  @StepScope
-  public JdbcPagingItemReader<InvoiceItemAggregateRow> reader(
-      @Value("#{stepExecutionContext['minValue']}") Long minValue,
-      @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
-      @Value("#{jobParameters['billingYm']}") String billingYm,
-      @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
+    @Bean
+    @StepScope
+    public JdbcPagingItemReader<InvoiceItemAggregateRow> reader(
+            @Value("#{stepExecutionContext['minValue']}") Long minValue,
+            @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
+            @Value("#{jobParameters['billingYm']}") String billingYm,
+            @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
 
-    YearMonth yearMonth = YearMonth.parse(billingYm, DateTimeFormatter.ofPattern("yyyyMM"));
+        YearMonth yearMonth = YearMonth.parse(billingYm, DateTimeFormatter.ofPattern("yyyyMM"));
 
-    LocalDateTime startOfBillingPeriod = yearMonth.minusMonths(1).atDay(1).atStartOfDay();
+        LocalDateTime startOfBillingPeriod = yearMonth.minusMonths(1).atDay(1).atStartOfDay();
 
-    LocalDateTime endOfBillingPeriod = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endOfBillingPeriod = yearMonth.atDay(1).atStartOfDay();
 
-    PagingQueryProvider queryProvider = pagingQueryProvider();
+        PagingQueryProvider queryProvider = pagingQueryProvider();
 
-    return new JdbcPagingItemReaderBuilder<InvoiceItemAggregateRow>()
-        .name("invoiceItemReader")
-        .dataSource(dataSource)
-        .queryProvider(queryProvider)
-        .parameterValues(
-            Map.of(
-                "minValue", minValue,
-                "maxValue", maxValue,
-                "invMonth", billingYm,
-                "startOfBillingPeriod", startOfBillingPeriod,
-                "endOfBillingPeriod", endOfBillingPeriod))
-        .pageSize(pageSize)
-        .rowMapper(
-            (rs, rowNum) ->
-                new InvoiceItemAggregateRow(
-                    rs.getLong("sub_id"),
-                    rs.getString("inv_month"),
-                    rs.getString("type"),
-                    rs.getString("value_type"),
-                    rs.getString("name"),
-                    rs.getDouble("value"),
-                    rs.getString("target_scope"),
-                    rs.getLong("source_id")))
-        .build();
-  }
+        return new JdbcPagingItemReaderBuilder<InvoiceItemAggregateRow>()
+                .name("invoiceItemReader")
+                .dataSource(dataSource)
+                .queryProvider(queryProvider)
+                .parameterValues(
+                        Map.of(
+                                "minValue", minValue,
+                                "maxValue", maxValue,
+                                "invMonth", billingYm,
+                                "startOfBillingPeriod", startOfBillingPeriod,
+                                "endOfBillingPeriod", endOfBillingPeriod))
+                .pageSize(pageSize)
+                .rowMapper(
+                        (rs, rowNum) ->
+                                new InvoiceItemAggregateRow(
+                                        rs.getLong("sub_id"),
+                                        rs.getString("inv_month"),
+                                        rs.getString("type"),
+                                        rs.getString("value_type"),
+                                        rs.getString("name"),
+                                        rs.getDouble("value"),
+                                        rs.getString("target_scope"),
+                                        rs.getLong("source_id")))
+                .build();
+    }
 
-  private PagingQueryProvider pagingQueryProvider() {
+    private PagingQueryProvider pagingQueryProvider() {
 
-    PostgresPagingQueryProvider provider = new PostgresPagingQueryProvider();
+        PostgresPagingQueryProvider provider = new PostgresPagingQueryProvider();
 
-    provider.setSelectClause(
-        "SELECT sub_id, inv_month, type, value_type, name, value, target_scope, source_id");
-    provider.setFromClause("FROM ( " + queryProvider.fullUnionSql() + " ) t");
-    provider.setWhereClause("WHERE t.sub_id BETWEEN :minValue AND :maxValue");
-    provider.setSortKeys(
-        (Map.of("sub_id", Order.ASCENDING, "type", Order.ASCENDING, "source_id", Order.ASCENDING)));
+        provider.setSelectClause(
+                "SELECT sub_id, inv_month, type, value_type, name, value, target_scope, source_id");
+        provider.setFromClause("FROM ( " + queryProvider.fullUnionSql() + " ) t");
+        provider.setWhereClause("WHERE t.sub_id BETWEEN :minValue AND :maxValue");
+        provider.setSortKeys(
+                (Map.of(
+                        "sub_id",
+                        Order.ASCENDING,
+                        "type",
+                        Order.ASCENDING,
+                        "source_id",
+                        Order.ASCENDING)));
 
-    return provider;
-  }
+        return provider;
+    }
 }

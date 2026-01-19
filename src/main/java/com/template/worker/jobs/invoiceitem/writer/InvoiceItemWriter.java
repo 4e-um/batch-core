@@ -1,25 +1,28 @@
 package com.template.worker.jobs.invoiceitem.writer;
 
-import com.template.worker.jobs.invoiceitem.model.InvoiceItemRecord;
 import javax.sql.DataSource;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.template.worker.jobs.invoiceitem.model.InvoiceItemRecord;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @RequiredArgsConstructor
 public class InvoiceItemWriter {
 
-  private final DataSource dataSource;
+    private final DataSource dataSource;
 
-  @Bean
-  public JdbcBatchItemWriter<InvoiceItemRecord> writer() {
-    return new JdbcBatchItemWriterBuilder<InvoiceItemRecord>()
-        .dataSource(dataSource)
-        .sql(
-            """
+    @Bean
+    public JdbcBatchItemWriter<InvoiceItemRecord> writer() {
+        return new JdbcBatchItemWriterBuilder<InvoiceItemRecord>()
+                .dataSource(dataSource)
+                .sql(
+                        """
                     INSERT INTO invoice_item_test (
                         sub_id,
                         inv_month,
@@ -40,8 +43,8 @@ public class InvoiceItemWriter {
                         :createdAt
                     )
                 """)
-        .beanMapped()
-        .assertUpdates(false)
-        .build();
-  }
+                .beanMapped()
+                .assertUpdates(false)
+                .build();
+    }
 }

@@ -1,9 +1,5 @@
 package com.template.worker.jobs.invoiceitem.job;
 
-import com.template.worker.global.config.JobParameterValidator;
-import com.template.worker.global.listener.JobResultListener;
-import com.template.worker.jobs.invoiceitem.step.InvoiceItemPartitionStepConfig;
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -11,22 +7,28 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.template.worker.global.config.JobParameterValidator;
+import com.template.worker.global.listener.JobResultListener;
+import com.template.worker.jobs.invoiceitem.step.InvoiceItemPartitionStepConfig;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableBatchProcessing
 public class InvoiceItemJobConfig {
 
-  private final JobRepository jobRepository;
-  private final JobParameterValidator jobParametersValidator;
-  private final JobResultListener jobResultListener;
-  private final InvoiceItemPartitionStepConfig partitionStep;
+    private final JobRepository jobRepository;
+    private final JobParameterValidator jobParametersValidator;
+    private final JobResultListener jobResultListener;
+    private final InvoiceItemPartitionStepConfig partitionStep;
 
-  @Bean
-  public Job invoiceItemJob() {
-    return new JobBuilder("invoiceItemJob", jobRepository)
-        .validator(jobParametersValidator)
-        .listener(jobResultListener)
-        .start(partitionStep.invoiceItemPartitionStep())
-        .build();
-  }
+    @Bean
+    public Job invoiceItemJob() {
+        return new JobBuilder("invoiceItemJob", jobRepository)
+                .validator(jobParametersValidator)
+                .listener(jobResultListener)
+                .start(partitionStep.invoiceItemPartitionStep())
+                .build();
+    }
 }

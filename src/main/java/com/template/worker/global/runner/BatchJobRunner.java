@@ -1,8 +1,5 @@
 package com.template.worker.global.runner;
 
-import com.template.worker.global.launcher.BatchJobLauncher;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -12,37 +9,46 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import com.template.worker.global.launcher.BatchJobLauncher;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class BatchJobRunner implements ApplicationRunner {
 
-  private final BatchJobLauncher batchJobLauncher;
-  private final JobRegistry jobRegistry;
-  private final JobExplorer jobExplorer;
+    private final BatchJobLauncher batchJobLauncher;
+    private final JobRegistry jobRegistry;
+    private final JobExplorer jobExplorer;
 
-  @Override
-  public void run(ApplicationArguments args) throws Exception {
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
 
-    String jobName =
-        args.getOptionValues("spring.batch.job.name").stream()
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Missing --spring.batch.job.name"));
+        String jobName =
+                args.getOptionValues("spring.batch.job.name").stream()
+                        .findFirst()
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Missing --spring.batch.job.name"));
 
-    String billingYm =
-        args.getOptionValues("billingYm").stream()
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Missing billingYm=yyyyMM"));
+        String billingYm =
+                args.getOptionValues("billingYm").stream()
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new IllegalArgumentException("Missing billingYm=yyyyMM"));
 
-    Job job = jobRegistry.getJob(jobName);
+        Job job = jobRegistry.getJob(jobName);
 
-    JobParameters params =
-        new JobParametersBuilder(jobExplorer)
-            .addString("billingYm", billingYm)
-            .addLong("run.id", System.currentTimeMillis())
-            .toJobParameters();
+        JobParameters params =
+                new JobParametersBuilder(jobExplorer)
+                        .addString("billingYm", billingYm)
+                        .addLong("run.id", System.currentTimeMillis())
+                        .toJobParameters();
 
-    log.info("▶ BATCH START job={} billingYm={}", jobName, billingYm);
-    batchJobLauncher.launch(job, params);
-  }
+        log.info("▶ BATCH START job={} billingYm={}", jobName, billingYm);
+        batchJobLauncher.launch(job, params);
+    }
 }
