@@ -1,10 +1,8 @@
 package com.template.worker.jobs.invoiceitem.step;
 
-import com.template.worker.jobs.invoiceitem.model.InvoiceItemRecord;
 import com.template.worker.jobs.invoiceitem.model.InvoiceItemAggregateRow;
+import com.template.worker.jobs.invoiceitem.model.InvoiceItemRecord;
 import com.template.worker.jobs.invoiceitem.processor.InvoiceItemProcessor;
-import com.template.worker.jobs.invoiceitem.reader.InvoiceItemReader;
-import com.template.worker.jobs.invoiceitem.writer.InvoiceItemWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
@@ -26,7 +24,7 @@ public class InvoiceItemWorkerStepConfig {
     private final InvoiceItemProcessor processor;
     private final ItemWriter<InvoiceItemRecord> writer;
 
-    @Value("${spring.batch.chunk.invoiceitem}")
+    @Value("${spring.batch.jobs.invoice-item.chunk-size}")
     int chunk;
 
     @Bean

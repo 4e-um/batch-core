@@ -8,22 +8,42 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
 @RequiredArgsConstructor
 public class InvoicePartitionHandlerConfig {
 
     private final InvoiceWorkerStepConfig workerStep;
-    private final TaskExecutor batchPartitionExecutor;
 
-    @Value("${spring.batch.partition.invoice}")
+    @Value("${spring.batch.jobs.invoice.partition.grid-size}")
     private int gridSize;
+
+    @Value("${spring.batch.jobs.invoice.partition.thread.core-pool-size}")
+    private int corePoolSize;
+
+    @Value("${spring.batch.jobs.invoice.partition.thread.max-pool-size}")
+    private int maxPoolSize;
+
+    @Value("${spring.batch.jobs.invoice.partition.thread.queue-capacity}")
+    private int queueCapacity;
+
+    @Bean
+    public TaskExecutor invoicePartitionExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix("invoice-partition-");
+        executor.initialize();
+        return executor;
+    }
 
     @Bean
     public PartitionHandler invoicePartitionHandler() {
         TaskExecutorPartitionHandler h = new TaskExecutorPartitionHandler();
         h.setStep(workerStep.invoiceWorkerStep());
-        h.setTaskExecutor(batchPartitionExecutor);
+        h.setTaskExecutor(invoicePartitionExecutor());
         h.setGridSize(gridSize);
         return h;
     }
