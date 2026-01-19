@@ -42,12 +42,12 @@ public class InvoiceItemReader {
 
         LocalDateTime endOfBillingPeriod = yearMonth.atDay(1).atStartOfDay();
 
-        PagingQueryProvider queryProvider = pagingQueryProvider();
+        PagingQueryProvider pqueryProvider = pagingQueryProvider();
 
         return new JdbcPagingItemReaderBuilder<InvoiceItemAggregateRow>()
                 .name("invoiceItemReader")
                 .dataSource(dataSource)
-                .queryProvider(queryProvider)
+                .queryProvider(pqueryProvider)
                 .parameterValues(
                         Map.of(
                                 "minValue", minValue,
