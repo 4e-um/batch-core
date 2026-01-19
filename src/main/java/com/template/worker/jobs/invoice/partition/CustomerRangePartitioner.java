@@ -44,6 +44,12 @@ public class CustomerRangePartitioner implements Partitioner {
         long end = start + targetSize - 1;
 
         for (int i = 0; i < gridSize; i++) {
+
+            // 파티션 나누고 남은 데이터를 마지막 파티션에서 작업
+            if(i == gridSize - 1){
+                end = maxSubId;
+            }
+
             ExecutionContext context = new ExecutionContext();
             context.putLong("minSubId", start);
             context.putLong("maxSubId", Math.min(end, maxSubId));
