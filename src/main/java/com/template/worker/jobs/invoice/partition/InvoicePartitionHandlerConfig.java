@@ -1,5 +1,6 @@
 package com.template.worker.jobs.invoice.partition;
 
+import com.template.worker.jobs.invoice.step.InvoiceWorkerStepConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.partition.PartitionHandler;
 import org.springframework.batch.core.partition.support.TaskExecutorPartitionHandler;

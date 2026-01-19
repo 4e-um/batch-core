@@ -55,7 +55,7 @@ public class InvoiceReader {
         """);
 
         queryProvider.setFromClause("""
-            FROM invoice_item
+            FROM invoice_item_test
         """);
 
         queryProvider.setWhereClause("""
