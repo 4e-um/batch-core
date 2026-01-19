@@ -1,6 +1,8 @@
 package com.template.worker.jobs.invoiceitem.reader;
 
 import com.template.worker.jobs.invoiceitem.model.InvoiceItemAggregateRow;
+import java.util.Map;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
@@ -11,9 +13,6 @@ import org.springframework.batch.item.database.support.PostgresPagingQueryProvid
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.sql.DataSource;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -26,8 +25,8 @@ public class InvoiceItemReader {
     public JdbcPagingItemReader<InvoiceItemAggregateRow> reader(
             @Value("#{stepExecutionContext['minValue']}") Long minValue,
             @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
-            @Value("#{jobParameters['billingYm']}") String billingYm
-    ) {
+            @Value("#{jobParameters['billingYm']}") String billingYm,
+            @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
 
         PagingQueryProvider queryProvider = pagingQueryProvider();
 
@@ -40,34 +39,40 @@ public class InvoiceItemReader {
                         "maxValue", maxValue,
                         "invMonth", billingYm
                 ))
-                .pageSize(1000)
+                .pageSize(pageSize)
                 .rowMapper((rs, rowNum) -> new InvoiceItemAggregateRow(
-                        rs.getLong("sub_id"),
-                        rs.getString("inv_month"),
-                        rs.getString("type"),
-                        rs.getString("value_type"),
-                        rs.getString("name"),
-                        rs.getDouble("value"),
-                        rs.getString("target_scope")
-                ))
-                .build();
+                            rs.getLong("sub_id"),
+                            rs.getString("inv_month"),
+                            rs.getString("type"),
+                            rs.getString("value_type"),
+                            rs.getString("name"),
+                            rs.getDouble("value"),
+                            rs.getString("target_scope"),
+                            rs.getLong("source_id")))
+            .build();
     }
+
     private PagingQueryProvider pagingQueryProvider() {
 
         PostgresPagingQueryProvider provider = new PostgresPagingQueryProvider();
 
-        provider.setSelectClause("SELECT sub_id, inv_month, type, value_type, name, value, target_scope");
+        provider.setSelectClause("SELECT sub_id, inv_month, type, value_type, name, value, target_scope, source_id");
         provider.setFromClause("FROM ( " + fullUnionSql() + " ) t");
         provider.setWhereClause("WHERE t.sub_id BETWEEN :minValue AND :maxValue");
-        provider.setSortKeys((Map.of("sub_id", Order.ASCENDING)));
+        provider.setSortKeys((Map.of("sub_id", Order.ASCENDING,
+                                      "type", Order.ASCENDING,
+                                      "source_id", Order.ASCENDING)));
 
         return provider;
     }
 
     private String fullUnionSql() {
-        return planSql() + "\n UNION ALL \n"
-                + vasSql() + "\n UNION ALL \n"
-                + microPaymentSql() + "\n UNION ALL \n"
+        return planSql()
+                + "\n UNION ALL \n"
+                + vasSql()
+                + "\n UNION ALL \n"
+                + microPaymentSql()
+                + "\n UNION ALL \n"
                 + discountSql();
     }
 
@@ -81,7 +86,8 @@ public class InvoiceItemReader {
                     'FIXED' AS value_type,
                     p.plan_name AS name,
                     sp.cost AS value,
-                    NULL AS target_scope
+                    NULL AS target_scope,
+                    sp.sp_id AS source_id
                 FROM subscription_plan sp
                 JOIN plan p ON sp.plan_id = p.plan_id
                 WHERE
@@ -108,7 +114,8 @@ public class InvoiceItemReader {
                     'FIXED' AS value_type,
                     v.name AS name,
                     sv.monthly_fee AS value,
-                    NULL AS target_scope
+                    NULL AS target_scope,
+                    sv.sv_id AS source_id
                 FROM subscription_vas sv
                 JOIN vas v ON sv.vas_id = v.vas_id
                 WHERE
@@ -138,7 +145,8 @@ public class InvoiceItemReader {
                     'FIXED' AS value_type,
                     mp.name AS name,
                     mp.amount AS value,
-                    NULL AS target_scope
+                    NULL AS target_scope,
+                    mp.micro_id AS source_id
                 FROM micro_payment mp
                 WHERE
                     mp.pay_date >= date_trunc(
@@ -168,7 +176,8 @@ public class InvoiceItemReader {
                         THEN (sp.cost * sd.value * -1)
                         ELSE (sd.value * -1)
                     END AS value,
-                    sd.target_scope AS target_scope
+                    sd.target_scope AS target_scope,
+                    sd.sd_id AS source_id
                 FROM subscription_discount sd
                 JOIN discount_policy dp ON sd.discount_id = dp.discount_id
                 LEFT JOIN subscription_plan sp ON sd.sub_id = sp.sub_id

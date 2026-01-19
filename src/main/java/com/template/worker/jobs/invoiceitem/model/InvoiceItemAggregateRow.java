@@ -7,5 +7,6 @@ public record InvoiceItemAggregateRow(
         String valueType,
         String name,
         Double value,
-        String targetScope
+        String targetScope,
+        Long sourceId
 ) {}
