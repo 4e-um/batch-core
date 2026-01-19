@@ -32,8 +32,7 @@ repositories {
 // 커버리지 제외 패턴 (JaCoCo, SonarQube 공통)
 // ============================================================================
 def coverageExcludePatterns = [
-    '**/global/**',
-    '**/jobs/**',
+    '**'
 ]
 def coverageExcludeClasses = coverageExcludePatterns + ['**/*Application.class']
 def coverageExcludeSonar = coverageExcludePatterns.collect { it + '/*.java' } + ['**/*Application.java']
