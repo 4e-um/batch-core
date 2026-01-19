@@ -3,27 +3,34 @@ spring:
     jdbc:
       initialize-schema: always
 
-    # Chunk 전략
-    chunk:
-      invoiceitem: 1000
-      invoice: 1000
+    # 공통 설정
+    common:
+      retry:
+        max-attempts: 3
+        backoff-ms: 2000
+      skip:
+        max-count: 1000
 
-    # Retry 정책
-    retry:
-      max-attempts: 3
-      backoff-ms: 2000
+    # Job 별 상세 설정
+    jobs:
+      # 1. 청구 상세 생성 Job (InvoiceItemJob)
+      invoice-item:
+        chunk-size: 3000
+        page-size: 3000
+        partition:
+          grid-size: 6
+          thread:
+            core-pool-size: 6
+            max-pool-size: 8
+            queue-capacity: 1000
 
-    # Skip 정책
-    skip:
-      max-count: 1000
-
-    # 공통 Step Thread Pool (추후 병렬처리 대비)
-    thread:
-      core-pool-size: 4
-      max-pool-size: 8
-      queue-capacity: 1000
-
-    # Partition 병렬도 제어
-    partition:
-      invoiceitem: 4
-      invoice: 4
+      # 2. 청구서 생성 Job (InvoiceJob)
+      invoice:
+        chunk-size: 1000
+        page-size: 1000
+        partition:
+          grid-size: 4
+          thread:
+            core-pool-size: 4
+            max-pool-size: 8
+            queue-capacity: 1000

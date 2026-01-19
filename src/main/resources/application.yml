@@ -12,12 +12,12 @@ spring:
 
   main:
     time-zone: Asia/Seoul
-    jackson:
-      time-zone: Asia/Seoul
+  jackson:
+    time-zone: Asia/Seoul
 
-    batch:
-      job:
-        enabled: false
+  batch:
+    job:
+      enabled: false
 
 server:
   port: 8080
@@ -63,12 +63,13 @@ spring:
 
 logging:
   level:
-    root: DEBUG
-    com.template.worker: DEBUG
-    org.springframework.batch: DEBUG
+    org.springframework.batch.core.job: INFO
+    org.springframework.batch.core.step: INFO
+    org.springframework.batch.core.partition: DEBUG
+    org.springframework.batch.core.step.tasklet: DEBUG
+    com.template.worker: INFO
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{30} - %msg%n"
 ---
 
 spring:
@@ -82,4 +83,4 @@ logging:
     org.springframework.batch: INFO
     com.template.worker: INFO
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{30} - %msg%n"

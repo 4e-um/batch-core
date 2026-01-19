@@ -10,13 +10,16 @@ spring:
       keepalive-time: 30000
 
 ---
-spring.config.activate.on-profile: local
+spring:
+  config:
+    activate:
+      on-profile: local
 
 logging:
   level:
-    ROOT: INFO
-    org.springframework.jdbc.core: DEBUG
-    org.springframework.jdbc.datasource: DEBUG
-    com.zaxxer.hikari.HikariConfig: DEBUG
-    org.postgresql: TRACE
+    root: INFO
+    org.springframework.jdbc.core: WARN
+    org.springframework.jdbc.datasource: WARN
+    org.postgresql: WARN
+    com.zaxxer.hikari: INFO
 

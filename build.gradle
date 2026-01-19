@@ -32,12 +32,8 @@ repositories {
 // 커버리지 제외 패턴 (JaCoCo, SonarQube 공통)
 // ============================================================================
 def coverageExcludePatterns = [
-    '**/config/**',      // Config 클래스 제외
-    '**/exception/**',   // Exception 클래스 제외
-    '**/dto/**',         // DTO 클래스 제외
-    '**/example/**',     // 예제 코드 제외
-    '**/launcher/**',    // Batch Launcher 제외
-    '**/listener/**',    // Batch Listener 제외
+    '**/global/**',
+    '**/jobs/**',
 ]
 def coverageExcludeClasses = coverageExcludePatterns + ['**/*Application.class']
 def coverageExcludeSonar = coverageExcludePatterns.collect { it + '/*.java' } + ['**/*Application.java']
@@ -114,23 +110,25 @@ jacocoTestCoverageVerification {
 }
 
 // ============================================================================
-// Checkstyle (Code Style)
+// Checkstyle (Code Style) - Naver Conventions
 // ============================================================================
 checkstyle {
     toolVersion = '10.21.4'
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
+    configDirectory = file("${rootDir}/config/checkstyle")
     ignoreFailures = false
     maxWarnings = 0
 }
 
 // ============================================================================
-// Spotless (Code Formatting)
+// Spotless (Code Formatting) - 4-space indentation, Naver import order
 // ============================================================================
 spotless {
     java {
         target 'src/*/java/**/*.java'
-        googleJavaFormat()
-        removeUnusedImports()
+        googleJavaFormat().aosp().reflowLongStrings()
+        // Naver convention import order: java -> javax -> jakarta -> org -> net -> com -> others -> lombok
+        importOrder('java', 'javax', 'jakarta', 'org', 'net', 'com', '', 'lombok')
         trimTrailingWhitespace()
         endWithNewline()
     }

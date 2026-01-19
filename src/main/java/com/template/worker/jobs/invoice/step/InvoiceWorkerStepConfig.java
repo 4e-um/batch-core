@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -18,18 +19,21 @@ import org.springframework.batch.item.ItemWriter;
 public class InvoiceWorkerStepConfig {
 
     private final JobRepository jobRepository;
-    private final PlatformTransactionManager transactionManager;
+    private final PlatformTransactionManager primaryTxManager;
 
     private final ItemReader<InvoiceAggregationRow> invoicePagingReader;
     private final InvoiceProcessor processor;
     private final ItemWriter<InvoiceEntity> invoiceWriter;
     private final InvoiceStepLoggingListener stepLoggingListener;
 
+    @Value("${spring.batch.jobs.invoice.chunk-size}")
+    int chunk;
+
     @Bean
     public Step invoiceWorkerStep() {
 
         return new StepBuilder("invoiceWorkerStep", jobRepository)
-                .<InvoiceAggregationRow, InvoiceEntity>chunk(1000, transactionManager)
+                .<InvoiceAggregationRow, InvoiceEntity>chunk(chunk, primaryTxManager)
                 .reader(invoicePagingReader)   // ✅ StepScope Bean 주입
                 .processor(processor)
                 .writer(invoiceWriter)         // ✅ 정상 writer
