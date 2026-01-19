@@ -27,7 +27,3 @@ spring:
     partition:
       invoiceitem: 4
       invoice: 4
-
-slack:
-  webhook:
-    url: ${SLACK_WEBHOOK_URL:https://hooks.slack.com/services/YOUR/WEBHOOK/URL}
