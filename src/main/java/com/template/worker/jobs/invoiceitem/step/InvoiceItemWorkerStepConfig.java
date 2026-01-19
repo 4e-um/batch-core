@@ -18,22 +18,22 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class InvoiceItemWorkerStepConfig {
 
-    private final JobRepository jobRepository;
-    private final PlatformTransactionManager primaryTxManager;
-    private final ItemReader<InvoiceItemAggregateRow> reader;
-    private final InvoiceItemProcessor processor;
-    private final ItemWriter<InvoiceItemRecord> writer;
+  private final JobRepository jobRepository;
+  private final PlatformTransactionManager primaryTxManager;
+  private final ItemReader<InvoiceItemAggregateRow> reader;
+  private final InvoiceItemProcessor processor;
+  private final ItemWriter<InvoiceItemRecord> writer;
 
-    @Value("${spring.batch.jobs.invoice-item.chunk-size}")
-    int chunk;
+  @Value("${spring.batch.jobs.invoice-item.chunk-size}")
+  int chunk;
 
-    @Bean
-    public Step invoiceItemWorkerStep() {
-        return new StepBuilder("invoiceItemWorkerStep", jobRepository)
-                .<InvoiceItemAggregateRow, InvoiceItemRecord>chunk(chunk, primaryTxManager)
-                .reader(reader)
-                .processor(processor)
-                .writer(writer)
-                .build();
-    }
+  @Bean
+  public Step invoiceItemWorkerStep() {
+    return new StepBuilder("invoiceItemWorkerStep", jobRepository)
+        .<InvoiceItemAggregateRow, InvoiceItemRecord>chunk(chunk, primaryTxManager)
+        .reader(reader)
+        .processor(processor)
+        .writer(writer)
+        .build();
+  }
 }

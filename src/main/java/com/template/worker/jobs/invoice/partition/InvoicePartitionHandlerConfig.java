@@ -14,37 +14,37 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @RequiredArgsConstructor
 public class InvoicePartitionHandlerConfig {
 
-    private final InvoiceWorkerStepConfig workerStep;
+  private final InvoiceWorkerStepConfig workerStep;
 
-    @Value("${spring.batch.jobs.invoice.partition.grid-size}")
-    private int gridSize;
+  @Value("${spring.batch.jobs.invoice.partition.grid-size}")
+  private int gridSize;
 
-    @Value("${spring.batch.jobs.invoice.partition.thread.core-pool-size}")
-    private int corePoolSize;
+  @Value("${spring.batch.jobs.invoice.partition.thread.core-pool-size}")
+  private int corePoolSize;
 
-    @Value("${spring.batch.jobs.invoice.partition.thread.max-pool-size}")
-    private int maxPoolSize;
+  @Value("${spring.batch.jobs.invoice.partition.thread.max-pool-size}")
+  private int maxPoolSize;
 
-    @Value("${spring.batch.jobs.invoice.partition.thread.queue-capacity}")
-    private int queueCapacity;
+  @Value("${spring.batch.jobs.invoice.partition.thread.queue-capacity}")
+  private int queueCapacity;
 
-    @Bean
-    public TaskExecutor invoicePartitionExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(corePoolSize);
-        executor.setMaxPoolSize(maxPoolSize);
-        executor.setQueueCapacity(queueCapacity);
-        executor.setThreadNamePrefix("invoice-partition-");
-        executor.initialize();
-        return executor;
-    }
+  @Bean
+  public TaskExecutor invoicePartitionExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(corePoolSize);
+    executor.setMaxPoolSize(maxPoolSize);
+    executor.setQueueCapacity(queueCapacity);
+    executor.setThreadNamePrefix("invoice-partition-");
+    executor.initialize();
+    return executor;
+  }
 
-    @Bean
-    public PartitionHandler invoicePartitionHandler() {
-        TaskExecutorPartitionHandler h = new TaskExecutorPartitionHandler();
-        h.setStep(workerStep.invoiceWorkerStep());
-        h.setTaskExecutor(invoicePartitionExecutor());
-        h.setGridSize(gridSize);
-        return h;
-    }
+  @Bean
+  public PartitionHandler invoicePartitionHandler() {
+    TaskExecutorPartitionHandler h = new TaskExecutorPartitionHandler();
+    h.setStep(workerStep.invoiceWorkerStep());
+    h.setTaskExecutor(invoicePartitionExecutor());
+    h.setGridSize(gridSize);
+    return h;
+  }
 }

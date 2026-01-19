@@ -12,13 +12,14 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class InvoiceItemWriter {
 
-    private final DataSource dataSource;
+  private final DataSource dataSource;
 
-    @Bean
-    public JdbcBatchItemWriter<InvoiceItemRecord> writer() {
-        return new JdbcBatchItemWriterBuilder<InvoiceItemRecord>()
-                .dataSource(dataSource)
-                .sql("""
+  @Bean
+  public JdbcBatchItemWriter<InvoiceItemRecord> writer() {
+    return new JdbcBatchItemWriterBuilder<InvoiceItemRecord>()
+        .dataSource(dataSource)
+        .sql(
+            """
                     INSERT INTO invoice_item_test (
                         sub_id,
                         inv_month,
@@ -39,8 +40,8 @@ public class InvoiceItemWriter {
                         :createdAt
                     )
                 """)
-                .beanMapped()
-                .assertUpdates(false)
-                .build();
-    }
+        .beanMapped()
+        .assertUpdates(false)
+        .build();
+  }
 }

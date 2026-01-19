@@ -18,67 +18,69 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class InvoiceItemReader {
 
-    private final DataSource dataSource;
+  private final DataSource dataSource;
 
-    @Bean
-    @StepScope
-    public JdbcPagingItemReader<InvoiceItemAggregateRow> reader(
-            @Value("#{stepExecutionContext['minValue']}") Long minValue,
-            @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
-            @Value("#{jobParameters['billingYm']}") String billingYm,
-            @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
+  @Bean
+  @StepScope
+  public JdbcPagingItemReader<InvoiceItemAggregateRow> reader(
+      @Value("#{stepExecutionContext['minValue']}") Long minValue,
+      @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
+      @Value("#{jobParameters['billingYm']}") String billingYm,
+      @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
 
-        PagingQueryProvider queryProvider = pagingQueryProvider();
+    PagingQueryProvider queryProvider = pagingQueryProvider();
 
-        return new JdbcPagingItemReaderBuilder<InvoiceItemAggregateRow>()
-                .name("invoiceItemReader")
-                .dataSource(dataSource)
-                .queryProvider(queryProvider)
-                .parameterValues(Map.of(
-                        "minValue", minValue,
-                        "maxValue", maxValue,
-                        "invMonth", billingYm
-                ))
-                .pageSize(pageSize)
-                .rowMapper((rs, rowNum) -> new InvoiceItemAggregateRow(
-                            rs.getLong("sub_id"),
-                            rs.getString("inv_month"),
-                            rs.getString("type"),
-                            rs.getString("value_type"),
-                            rs.getString("name"),
-                            rs.getDouble("value"),
-                            rs.getString("target_scope"),
-                            rs.getLong("source_id")))
-            .build();
-    }
+    return new JdbcPagingItemReaderBuilder<InvoiceItemAggregateRow>()
+        .name("invoiceItemReader")
+        .dataSource(dataSource)
+        .queryProvider(queryProvider)
+        .parameterValues(
+            Map.of(
+                "minValue", minValue,
+                "maxValue", maxValue,
+                "invMonth", billingYm))
+        .pageSize(pageSize)
+        .rowMapper(
+            (rs, rowNum) ->
+                new InvoiceItemAggregateRow(
+                    rs.getLong("sub_id"),
+                    rs.getString("inv_month"),
+                    rs.getString("type"),
+                    rs.getString("value_type"),
+                    rs.getString("name"),
+                    rs.getDouble("value"),
+                    rs.getString("target_scope"),
+                    rs.getLong("source_id")))
+        .build();
+  }
 
-    private PagingQueryProvider pagingQueryProvider() {
+  private PagingQueryProvider pagingQueryProvider() {
 
-        PostgresPagingQueryProvider provider = new PostgresPagingQueryProvider();
+    PostgresPagingQueryProvider provider = new PostgresPagingQueryProvider();
 
-        provider.setSelectClause("SELECT sub_id, inv_month, type, value_type, name, value, target_scope, source_id");
-        provider.setFromClause("FROM ( " + fullUnionSql() + " ) t");
-        provider.setWhereClause("WHERE t.sub_id BETWEEN :minValue AND :maxValue");
-        provider.setSortKeys((Map.of("sub_id", Order.ASCENDING,
-                                      "type", Order.ASCENDING,
-                                      "source_id", Order.ASCENDING)));
+    provider.setSelectClause(
+        "SELECT sub_id, inv_month, type, value_type, name, value, target_scope, source_id");
+    provider.setFromClause("FROM ( " + fullUnionSql() + " ) t");
+    provider.setWhereClause("WHERE t.sub_id BETWEEN :minValue AND :maxValue");
+    provider.setSortKeys(
+        (Map.of("sub_id", Order.ASCENDING, "type", Order.ASCENDING, "source_id", Order.ASCENDING)));
 
-        return provider;
-    }
+    return provider;
+  }
 
-    private String fullUnionSql() {
-        return planSql()
-                + "\n UNION ALL \n"
-                + vasSql()
-                + "\n UNION ALL \n"
-                + microPaymentSql()
-                + "\n UNION ALL \n"
-                + discountSql();
-    }
+  private String fullUnionSql() {
+    return planSql()
+        + "\n UNION ALL \n"
+        + vasSql()
+        + "\n UNION ALL \n"
+        + microPaymentSql()
+        + "\n UNION ALL \n"
+        + discountSql();
+  }
 
-    // 요금제 SQL
-    private String planSql() {
-        return """
+  // 요금제 SQL
+  private String planSql() {
+    return """
                 SELECT
                     sp.sub_id AS sub_id,
                     :invMonth AS inv_month,
@@ -102,11 +104,11 @@ public class InvoiceItemReader {
                      )
                 )
                 """;
-    }
+  }
 
-    // 부가서비스 SQL
-    private String vasSql() {
-        return """
+  // 부가서비스 SQL
+  private String vasSql() {
+    return """
                 SELECT
                     sv.sub_id AS sub_id,
                     :invMonth AS inv_month,
@@ -133,11 +135,11 @@ public class InvoiceItemReader {
                     )
                 )
                 """;
-    }
+  }
 
-    // 소액 결제 SQL
-    private String microPaymentSql() {
-        return """
+  // 소액 결제 SQL
+  private String microPaymentSql() {
+    return """
                 SELECT
                     mp.sub_id AS sub_id,
                     :invMonth AS inv_month,
@@ -159,11 +161,11 @@ public class InvoiceItemReader {
                     )
                 AND mp.status = 'BILLED'
                 """;
-    }
+  }
 
-    // 할인 SQL
-    private String discountSql() {
-        return """
+  // 할인 SQL
+  private String discountSql() {
+    return """
                 SELECT
                     sd.sub_id AS sub_id,
                     :invMonth AS inv_month,
@@ -200,5 +202,5 @@ public class InvoiceItemReader {
                     )
                 )
                 """;
-    }
+  }
 }
