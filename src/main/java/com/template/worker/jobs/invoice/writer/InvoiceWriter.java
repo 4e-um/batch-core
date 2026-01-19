@@ -9,6 +9,5 @@ import com.template.worker.jobs.invoice.model.InvoiceEntity;
 @Component
 public class InvoiceWriter implements ItemWriter<InvoiceEntity> {
     @Override
-    public void write(Chunk<? extends InvoiceEntity> chunk) throws Exception {
-    }
+    public void write(Chunk<? extends InvoiceEntity> chunk) throws Exception {}
 }
