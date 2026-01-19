@@ -33,26 +33,26 @@ public class InvoiceItemReader {
     public JdbcPagingItemReader<InvoiceItemAggregateRow> reader(
             @Value("#{stepExecutionContext['minValue']}") Long minValue,
             @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
-            @Value("#{jobParameters['billingYm']}") String billingYm,
+            @Value("#{jobParameters['invMonth']}") String invMonth,
             @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
 
-        YearMonth yearMonth = YearMonth.parse(billingYm, DateTimeFormatter.ofPattern("yyyyMM"));
+        YearMonth yearMonth = YearMonth.parse(invMonth, DateTimeFormatter.ofPattern("yyyyMM"));
 
         LocalDateTime startOfBillingPeriod = yearMonth.minusMonths(1).atDay(1).atStartOfDay();
 
         LocalDateTime endOfBillingPeriod = yearMonth.atDay(1).atStartOfDay();
 
-        PagingQueryProvider queryProvider = pagingQueryProvider();
+        PagingQueryProvider pqueryProvider = pagingQueryProvider();
 
         return new JdbcPagingItemReaderBuilder<InvoiceItemAggregateRow>()
                 .name("invoiceItemReader")
                 .dataSource(dataSource)
-                .queryProvider(queryProvider)
+                .queryProvider(pqueryProvider)
                 .parameterValues(
                         Map.of(
                                 "minValue", minValue,
                                 "maxValue", maxValue,
-                                "invMonth", billingYm,
+                                "invMonth", invMonth,
                                 "startOfBillingPeriod", startOfBillingPeriod,
                                 "endOfBillingPeriod", endOfBillingPeriod))
                 .pageSize(pageSize)

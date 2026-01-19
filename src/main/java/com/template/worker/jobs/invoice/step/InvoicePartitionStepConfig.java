@@ -21,6 +21,7 @@ public class InvoicePartitionStepConfig {
 
     @Bean
     public Step invoicePartitionStep() {
+
         return new StepBuilder("invoicePartitionStep", jobRepository)
                 .partitioner("invoiceWorkerStep", partitioner)
                 .partitionHandler(partitionHandler.invoicePartitionHandler())

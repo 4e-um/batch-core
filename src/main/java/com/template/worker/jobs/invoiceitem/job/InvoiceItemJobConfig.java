@@ -19,14 +19,14 @@ import lombok.RequiredArgsConstructor;
 public class InvoiceItemJobConfig {
 
     private final JobRepository jobRepository;
-    private final JobParameterValidator jobParametersValidator;
+    private final JobParameterValidator jobParameterValidator;
     private final JobResultListener jobResultListener;
     private final InvoiceItemPartitionStepConfig partitionStep;
 
     @Bean
     public Job invoiceItemJob() {
         return new JobBuilder("invoiceItemJob", jobRepository)
-                .validator(jobParametersValidator)
+                .validator(jobParameterValidator)
                 .listener(jobResultListener)
                 .start(partitionStep.invoiceItemPartitionStep())
                 .build();

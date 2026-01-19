@@ -19,21 +19,21 @@ public class JobParameterValidator implements JobParametersValidator {
     @Override
     public void validate(JobParameters parameters) throws JobParametersInvalidException {
 
-        String billingYm = parameters.getString("billingYm");
+        String invMonth = parameters.getString("invMonth");
 
-        if (billingYm == null) {
-            throw new JobParametersInvalidException("billingYm is required. (format: yyyyMM)");
+        if (invMonth == null) {
+            throw new JobParametersInvalidException("invMonth is required. (format: yyyyMM)");
         }
 
         try {
-            YearMonth ym = YearMonth.parse(billingYm, YM_FORMATTER);
+            YearMonth ym = YearMonth.parse(invMonth, YM_FORMATTER);
 
             if (ym.isAfter(YearMonth.now().plusMonths(1))) {
-                throw new JobParametersInvalidException("billingYm cannot be future month.");
+                throw new JobParametersInvalidException("invMonth cannot be future month.");
             }
 
         } catch (java.time.format.DateTimeParseException e) {
-            throw new JobParametersInvalidException("Invalid billingYm format. Required: yyyyMM");
+            throw new JobParametersInvalidException("Invalid invMonth format. Required: yyyyMM");
         }
     }
 }
