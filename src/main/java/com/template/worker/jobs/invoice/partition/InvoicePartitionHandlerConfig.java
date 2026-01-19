@@ -16,8 +16,8 @@ public class InvoicePartitionHandlerConfig {
     private final Step invoiceWorkerStep;
     private final TaskExecutor batchPartitionExecutor;
 
-    @Value("${spring.batch.partition.invoice}")
-    private int gridSize;
+  @Value("${spring.batch.partition.invoice}")
+  private int gridSize;
 
     @Bean
     public PartitionHandler invoicePartitionHandler() {

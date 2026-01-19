@@ -28,15 +28,13 @@ public class JobResultListener {
 
     if (jobExecution.getStatus().isUnsuccessful()) {
       Throwable cause =
-              jobExecution.getAllFailureExceptions().isEmpty()
-                      ? null
-                      : jobExecution.getAllFailureExceptions().get(0);
+          jobExecution.getAllFailureExceptions().isEmpty()
+              ? null
+              : jobExecution.getAllFailureExceptions().get(0);
 
       jobLogger.jobFailed(jobName, duration, cause);
     } else {
       jobLogger.jobSuccess(jobName, duration);
     }
   }
-
-
 }

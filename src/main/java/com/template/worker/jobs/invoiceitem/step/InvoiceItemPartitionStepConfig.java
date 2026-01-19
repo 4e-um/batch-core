@@ -13,15 +13,15 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class InvoiceItemPartitionStepConfig {
 
-    private final JobRepository jobRepository;
-    private final SubscriptionRangePartitioner partitioner;
-    private final InvoiceItemPartitionHandlerConfig partitionHandler;
+  private final JobRepository jobRepository;
+  private final SubscriptionRangePartitioner partitioner;
+  private final InvoiceItemPartitionHandlerConfig partitionHandler;
 
-    @Bean
-    public Step invoiceItemPartitionStep() {
-        return new StepBuilder("invoiceItemPartitionStep", jobRepository)
-                .partitioner("invoiceItemWorkerStep", partitioner)
-                .partitionHandler(partitionHandler.invoiceItemPartitionHandler())
-                .build();
-    }
+  @Bean
+  public Step invoiceItemPartitionStep() {
+    return new StepBuilder("invoiceItemPartitionStep", jobRepository)
+        .partitioner("invoiceItemWorkerStep", partitioner)
+        .partitionHandler(partitionHandler.invoiceItemPartitionHandler())
+        .build();
+  }
 }
