@@ -28,7 +28,6 @@ public class InvoiceWriterConfig {
                 .dataSource(dataSource)
                 .sql("""
                     INSERT INTO invoice (
-                                inv_id,
                                 inv_no,
                                 sub_id,
                                 name,
@@ -44,7 +43,6 @@ public class InvoiceWriterConfig {
                                 created_at
                             )
                             SELECT
-                                nextval('invoice_id_seq'),
                                 nextval('invoice_no_seq'),
                                 s.sub_id,
                                 c.name,
