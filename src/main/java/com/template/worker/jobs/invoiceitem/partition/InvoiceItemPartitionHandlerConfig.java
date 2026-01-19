@@ -43,10 +43,10 @@ public class InvoiceItemPartitionHandlerConfig {
 
     @Bean
     public PartitionHandler invoiceItemPartitionHandler() {
-        TaskExecutorPartitionHandler h = new TaskExecutorPartitionHandler();
-        h.setStep(workerStep.invoiceItemWorkerStep());
-        h.setTaskExecutor(invoiceItemPartitionExecutor());
-        h.setGridSize(gridSize);
-        return h;
+        TaskExecutorPartitionHandler handler = new TaskExecutorPartitionHandler();
+        handler.setStep(workerStep.invoiceItemWorkerStep());
+        handler.setTaskExecutor(invoiceItemPartitionExecutor());
+        handler.setGridSize(gridSize);
+        return handler;
     }
 }

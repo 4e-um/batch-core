@@ -12,7 +12,7 @@ public class JobLogger {
         log.info("[BATCH SUCCESS] job={} duration={}ms", jobName, durationMs);
     }
 
-    public void jobFailed(String jobName, long durationMs, Throwable t) {
-        log.error("[BATCH FAILED] job={} duration={}ms", jobName, durationMs, t);
+    public void jobFailed(String jobName, long durationMs, Throwable throwable) {
+        log.error("[BATCH FAILED] job={} duration={}ms", jobName, durationMs, throwable);
     }
 }

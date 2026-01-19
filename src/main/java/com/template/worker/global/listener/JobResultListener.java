@@ -18,7 +18,8 @@ public class JobResultListener {
     private final JobLogger jobLogger;
 
     @BeforeJob
-    public void before(JobExecution jobExecution) {}
+    public void before(JobExecution jobExecution) {
+    }
 
     @AfterJob
     public void after(JobExecution jobExecution) {

@@ -14,5 +14,7 @@ class WorkerApplicationTests {
     @MockitoBean private BatchJobRunner batchJobRunner;
 
     @Test
-    void contextLoads() {}
+    void contextLoads() {
+        // Spring Boot application context loads successfully
+    }
 }
