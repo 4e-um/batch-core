@@ -17,8 +17,16 @@ public class SubscriptionRangePartitioner implements Partitioner {
   @Override
   public Map<String, ExecutionContext> partition(int gridSize) {
 
-    Long min = jdbcTemplate.queryForObject("SELECT MIN(sub_id) FROM subscription", Long.class);
-    Long max = jdbcTemplate.queryForObject("SELECT MAX(sub_id) FROM subscription", Long.class);
+    Map<String, Object> range =
+        jdbcTemplate.queryForMap(
+            "SELECT MIN(sub_id) as min_id, MAX(sub_id) as max_id FROM subscription");
+
+    Long min = (Long) range.get("min_id");
+    Long max = (Long) range.get("max_id");
+
+    if (min == null) {
+      return new HashMap<>();
+    }
 
     long total = max - min + 1;
     long targetSize = Math.max(total / gridSize, 1);
