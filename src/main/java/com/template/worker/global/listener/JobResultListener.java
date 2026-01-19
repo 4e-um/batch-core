@@ -13,28 +13,28 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class JobResultListener {
 
-  private final JobLogger jobLogger;
+    private final JobLogger jobLogger;
 
-  @BeforeJob
-  public void before(JobExecution jobExecution) {}
+    @BeforeJob
+    public void before(JobExecution jobExecution) {}
 
-  @AfterJob
-  public void after(JobExecution jobExecution) {
-    String jobName = jobExecution.getJobInstance().getJobName();
+    @AfterJob
+    public void after(JobExecution jobExecution) {
+        String jobName = jobExecution.getJobInstance().getJobName();
 
-    LocalDateTime start = jobExecution.getStartTime();
-    LocalDateTime end = jobExecution.getEndTime();
-    long duration = (start != null && end != null) ? Duration.between(start, end).toMillis() : 0L;
+        LocalDateTime start = jobExecution.getStartTime();
+        LocalDateTime end = jobExecution.getEndTime();
+        long duration = (start != null && end != null) ? Duration.between(start, end).toMillis() : 0L;
 
-    if (jobExecution.getStatus().isUnsuccessful()) {
-      Throwable cause =
-              jobExecution.getAllFailureExceptions().isEmpty()
-                      ? null
-                      : jobExecution.getAllFailureExceptions().get(0);
+        if (jobExecution.getStatus().isUnsuccessful()) {
+            Throwable cause =
+                jobExecution.getAllFailureExceptions().isEmpty()
+                    ? null
+                    : jobExecution.getAllFailureExceptions().get(0);
 
-      jobLogger.jobFailed(jobName, duration, cause);
-    } else {
-      jobLogger.jobSuccess(jobName, duration);
+            jobLogger.jobFailed(jobName, duration, cause);
+        } else {
+            jobLogger.jobSuccess(jobName, duration);
+        }
     }
-  }
 }

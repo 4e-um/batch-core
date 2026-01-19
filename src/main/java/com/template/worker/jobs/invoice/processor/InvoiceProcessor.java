@@ -1,7 +1,7 @@
 package com.template.worker.jobs.invoice.processor;
 
-import com.template.worker.jobs.invoice.model.InvoiceItemRow;
 import com.template.worker.jobs.invoice.model.InvoiceEntity;
+import com.template.worker.jobs.invoice.model.InvoiceItemRow;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
