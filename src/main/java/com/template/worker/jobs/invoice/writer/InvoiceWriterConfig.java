@@ -1,7 +1,7 @@
 package com.template.worker.jobs.invoice.writer;
 
-import com.template.worker.jobs.invoice.model.InvoiceEntity;
-import lombok.RequiredArgsConstructor;
+import javax.sql.DataSource;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
-import javax.sql.DataSource;
+import com.template.worker.jobs.invoice.model.InvoiceEntity;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,11 +23,11 @@ public class InvoiceWriterConfig {
     @Bean
     @StepScope
     public JdbcBatchItemWriter<InvoiceEntity> invoiceWriter(
-            @Value("#{jobParameters[invMonth]}") String invMonth
-    ) {
+            @Value("#{jobParameters[invMonth]}") String invMonth) {
         return new JdbcBatchItemWriterBuilder<InvoiceEntity>()
                 .dataSource(dataSource)
-                .sql("""
+                .sql(
+                        """
                     INSERT INTO invoice_test (
                                 inv_no,
                                 sub_id,
@@ -65,15 +67,16 @@ public class InvoiceWriterConfig {
                             -- 중복 방지 (sub_id + inv_month 조합)
                             ON CONFLICT (sub_id, inv_month) DO NOTHING;
                 """)
-                .itemSqlParameterSourceProvider(item -> {
-                    MapSqlParameterSource params = new MapSqlParameterSource();
-                    params.addValue("subId", item.getSubId());
-                    params.addValue("invMonth", invMonth);
-                    params.addValue("totalAmount", item.getTotalAmount());
-                    params.addValue("totalDiscount", item.getTotalDiscount());
-                    params.addValue("totalPrice", item.getTotalPrice());
-                    return params;
-                })
+                .itemSqlParameterSourceProvider(
+                        item -> {
+                            MapSqlParameterSource params = new MapSqlParameterSource();
+                            params.addValue("subId", item.getSubId());
+                            params.addValue("invMonth", invMonth);
+                            params.addValue("totalAmount", item.getTotalAmount());
+                            params.addValue("totalDiscount", item.getTotalDiscount());
+                            params.addValue("totalPrice", item.getTotalPrice());
+                            return params;
+                        })
                 .assertUpdates(false) // ON CONFLICT로 인해 0건 반영되어도 예외 무시
                 .build();
     }

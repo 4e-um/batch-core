@@ -1,14 +1,16 @@
 package com.template.worker.jobs.invoice.job;
 
-import com.template.worker.global.config.JobParameterValidator;
-import com.template.worker.global.listener.JobResultListener;
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.template.worker.global.config.JobParameterValidator;
+import com.template.worker.global.listener.JobResultListener;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor

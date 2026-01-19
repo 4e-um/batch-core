@@ -1,16 +1,18 @@
 package com.template.worker.jobs.invoice.partition;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.partition.support.Partitioner;
-import org.springframework.batch.item.ExecutionContext;
-import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.springframework.batch.core.partition.support.Partitioner;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +26,8 @@ public class CustomerRangePartitioner implements Partitioner {
         long maxSubId;
 
         try (Connection con = dataSource.getConnection();
-             PreparedStatement ps = con.prepareStatement("select min(sub_id), max(sub_id) from invoice_item");
+             PreparedStatement ps =
+                     con.prepareStatement("select min(sub_id), max(sub_id) from invoice_item");
              ResultSet rs = ps.executeQuery()) {
             rs.next();
             minSubId = rs.getLong(1);
@@ -34,7 +37,9 @@ public class CustomerRangePartitioner implements Partitioner {
         }
 
         // 데이터가 없는 경우 빈 맵 반환
-        if (maxSubId == 0 && minSubId == 0) return new HashMap<>();
+        if (maxSubId == 0 && minSubId == 0) {
+            return new HashMap<>();
+        }
 
         // targetSize를 구할 때 나머지를 고려하여 계산
         long totalRange = maxSubId - minSubId + 1;

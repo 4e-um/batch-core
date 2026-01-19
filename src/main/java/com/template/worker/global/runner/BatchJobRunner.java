@@ -1,8 +1,5 @@
 package com.template.worker.global.runner;
 
-import com.template.worker.global.launcher.BatchJobLauncher;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -10,41 +7,48 @@ import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import com.template.worker.global.launcher.BatchJobLauncher;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@Profile("!test") // ⭐ test 프로파일에서는 로딩되지 않음
 @RequiredArgsConstructor
 public class BatchJobRunner implements ApplicationRunner {
 
-  private final BatchJobLauncher batchJobLauncher;
-  private final JobRegistry jobRegistry;
-  private final JobExplorer jobExplorer;
+    private final BatchJobLauncher batchJobLauncher;
+    private final JobRegistry jobRegistry;
+    private final JobExplorer jobExplorer;
 
-  @Override
-  public void run(ApplicationArguments args) throws Exception {
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
 
-    String jobName =
-        args.getOptionValues("spring.batch.job.name").stream()
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Missing --spring.batch.job.name"));
-
-        String invMonth =
-                args.getOptionValues("invMonth").stream()
+        String jobName =
+                args.getOptionValues("spring.batch.job.name").stream()
                         .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Missing invMonth=yyyyMM"));
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Missing --spring.batch.job.name"));
 
-    Job job = jobRegistry.getJob(jobName);
+        String billingYm =
+                args.getOptionValues("billingYm").stream()
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new IllegalArgumentException("Missing billingYm=yyyyMM"));
+
+        Job job = jobRegistry.getJob(jobName);
 
         JobParameters params =
                 new JobParametersBuilder(jobExplorer)
-                        .addString("invMonth", invMonth)
+                        .addString("billingYm", billingYm)
                         .addLong("run.id", System.currentTimeMillis())
                         .toJobParameters();
 
-        log.info("▶ BATCH START job={} invMonth={}", jobName, invMonth);
+        log.info("▶ BATCH START job={} billingYm={}", jobName, billingYm);
         batchJobLauncher.launch(job, params);
     }
 }

@@ -1,13 +1,13 @@
 package com.template.worker.jobs.invoice.processor;
 
-import com.template.worker.jobs.invoice.model.InvoiceAggregationRow;
-import com.template.worker.jobs.invoice.model.InvoiceEntity;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import com.template.worker.jobs.invoice.model.InvoiceAggregationRow;
+import com.template.worker.jobs.invoice.model.InvoiceEntity;
+
 @Component
-public class InvoiceProcessor
-        implements ItemProcessor<InvoiceAggregationRow, InvoiceEntity> {
+public class InvoiceProcessor implements ItemProcessor<InvoiceAggregationRow, InvoiceEntity> {
 
     @Override
     public InvoiceEntity process(InvoiceAggregationRow row) {

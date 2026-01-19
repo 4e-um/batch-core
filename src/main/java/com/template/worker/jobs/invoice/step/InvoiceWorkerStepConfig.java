@@ -1,18 +1,20 @@
 package com.template.worker.jobs.invoice.step;
 
-import com.template.worker.jobs.invoice.model.InvoiceAggregationRow;
-import com.template.worker.jobs.invoice.model.InvoiceEntity;
-import com.template.worker.jobs.invoice.processor.InvoiceProcessor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
+
+import com.template.worker.jobs.invoice.model.InvoiceAggregationRow;
+import com.template.worker.jobs.invoice.model.InvoiceEntity;
+import com.template.worker.jobs.invoice.processor.InvoiceProcessor;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,9 +36,9 @@ public class InvoiceWorkerStepConfig {
 
         return new StepBuilder("invoiceWorkerStep", jobRepository)
                 .<InvoiceAggregationRow, InvoiceEntity>chunk(chunk, primaryTxManager)
-                .reader(invoicePagingReader)   // ✅ StepScope Bean 주입
+                .reader(invoicePagingReader) // ✅ StepScope Bean 주입
                 .processor(processor)
-                .writer(invoiceWriter)         // ✅ 정상 writer
+                .writer(invoiceWriter) // ✅ 정상 writer
                 .listener(stepLoggingListener)
                 .build();
     }
