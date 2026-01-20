@@ -20,7 +20,7 @@ name: Deploy Batch to Cloud Run Job
 on:
   push:
     branches:
-      - main
+      - develop
   workflow_dispatch:
 
 env:
