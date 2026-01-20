@@ -1,19 +1,21 @@
 # ============================================================================
-# Worker Deploy Workflow
+# Batch Deploy Workflow (GCP Cloud Run Job)
 # ============================================================================
 # 역할:
-#   - Docker 이미지 빌드 및 ECR 푸시
-#   - EventBridge 스케줄러가 다음 실행 시 자동으로 새 이미지 사용
+#   - Docker 이미지 빌드 및 Artifact Registry 푸시
+#   - Cloud Run Job 이미지 업데이트
+#   - Cloud Scheduler가 다음 실행 시 자동으로 새 이미지 사용
 #
-# GitHub Secrets (Settings > Secrets and variables > Actions > Secrets):
-#   - AWS_ACCESS_KEY_ID: AWS IAM Access Key
-#   - AWS_SECRET_ACCESS_KEY: AWS IAM Secret Key
+# 인증 방식: Workload Identity Federation (keyless)
 #
 # GitHub Variables (Settings > Secrets and variables > Actions > Variables):
-#   - ECR_REPOSITORY: Worker용 ECR 레포지토리 이름
+#   - GCP_PROJECT_ID: GCP 프로젝트 ID
+#   - GCP_REGION: 리전 (예: asia-northeast3)
+#   - GCP_WIF_PROVIDER: Workload Identity Provider
+#   - GCP_SERVICE_ACCOUNT: GitHub Actions SA 이메일
 # ============================================================================
 
-name: Deploy Worker to ECR
+name: Deploy Batch to Cloud Run Job
 
 on:
   push:
@@ -22,30 +24,34 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: ap-northeast-2
+  IMAGE_NAME: batch-core
+  JOB_NAME: telecom-app-batch-core
 
 jobs:
   deploy:
-    name: Build and Push
+    name: Build and Deploy
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
+      id-token: write  # Required for WIF
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -56,18 +62,24 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest
+            ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/telecom-app-repo/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/telecom-app-repo/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Update Cloud Run Job
+        run: |
+          gcloud run jobs update ${{ env.JOB_NAME }} \
+            --image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/telecom-app-repo/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --region ${{ vars.GCP_REGION }}
+
       - name: Deployment Summary
         run: |
-          echo "## Worker Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Batch Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| **Image Tag** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **ECR Repository** | \`${{ vars.ECR_REPOSITORY }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Region** | \`${{ env.AWS_REGION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Cloud Run Job** | \`${{ env.JOB_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Region** | \`${{ vars.GCP_REGION }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> Worker는 다음 EventBridge 스케줄 실행 시 자동으로 새 이미지를 사용합니다" >> $GITHUB_STEP_SUMMARY
+          echo "> Batch Job은 다음 Cloud Scheduler 실행 시 자동으로 새 이미지를 사용합니다" >> $GITHUB_STEP_SUMMARY
