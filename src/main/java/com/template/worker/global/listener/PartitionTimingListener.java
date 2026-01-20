@@ -11,16 +11,17 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class PartitionTimingListener implements StepExecutionListener {
 
-    private long start;
+    private static final String START_TIME = "startTime";
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        start = System.currentTimeMillis();
+        stepExecution.getExecutionContext().putLong(START_TIME, System.currentTimeMillis());
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        long duration = System.currentTimeMillis() - start;
+        long startTime = stepExecution.getExecutionContext().getLong(START_TIME);
+        long duration = System.currentTimeMillis() - startTime;
 
         log.info(
                 "[PARTITION] name={} read={} write={} time={}ms",
