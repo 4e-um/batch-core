@@ -34,21 +34,21 @@ public class BatchJobRunner implements ApplicationRunner {
                                         new IllegalArgumentException(
                                                 "Missing --spring.batch.job.name"));
 
-        String billingYm =
-                args.getOptionValues("billingYm").stream()
+        String invMonth =
+                args.getOptionValues("invMonth").stream()
                         .findFirst()
                         .orElseThrow(
-                                () -> new IllegalArgumentException("Missing billingYm=yyyyMM"));
+                                () -> new IllegalArgumentException("Missing invMonth=yyyyMM"));
 
         Job job = jobRegistry.getJob(jobName);
 
         JobParameters params =
                 new JobParametersBuilder(jobExplorer)
-                        .addString("billingYm", billingYm)
+                        .addString("invMonth", invMonth)
                         .addLong("run.id", System.currentTimeMillis())
                         .toJobParameters();
 
-        log.info("▶ BATCH START job={} billingYm={}", jobName, billingYm);
+        log.info("▶ BATCH START job={} invMonth={}", jobName, invMonth);
         batchJobLauncher.launch(job, params);
     }
 }

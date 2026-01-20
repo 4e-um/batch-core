@@ -1,5 +1,6 @@
 package com.template.worker.jobs.invoice.step;
 
+import com.template.worker.global.listener.PartitionTimingListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -26,7 +27,7 @@ public class InvoiceWorkerStepConfig {
     private final ItemReader<InvoiceAggregationRow> invoicePagingReader;
     private final InvoiceProcessor processor;
     private final ItemWriter<InvoiceEntity> invoiceWriter;
-    private final InvoiceStepLoggingListener stepLoggingListener;
+    private final PartitionTimingListener partitionTimingListener;
 
     @Value("${spring.batch.jobs.invoice.chunk-size}")
     int chunk;
@@ -39,7 +40,7 @@ public class InvoiceWorkerStepConfig {
                 .reader(invoicePagingReader) // ✅ StepScope Bean 주입
                 .processor(processor)
                 .writer(invoiceWriter) // ✅ 정상 writer
-                .listener(stepLoggingListener)
+                .listener(partitionTimingListener)
                 .build();
     }
 }

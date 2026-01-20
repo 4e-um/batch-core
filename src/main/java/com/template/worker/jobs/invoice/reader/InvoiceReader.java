@@ -30,12 +30,13 @@ public class InvoiceReader {
     public JdbcPagingItemReader<InvoiceAggregationRow> invoicePagingReader(
             @Value("#{stepExecutionContext[minSubId]}") Long minSubId,
             @Value("#{stepExecutionContext[maxSubId]}") Long maxSubId,
-            @Value("#{jobParameters[invMonth]}") String invMonth) {
+            @Value("#{jobParameters[invMonth]}") String invMonth,
+            @Value("${spring.batch.jobs.invoice.page-size}") int pageSize) {
 
         JdbcPagingItemReader<InvoiceAggregationRow> reader = new JdbcPagingItemReader<>();
 
         reader.setDataSource(dataSource);
-        reader.setPageSize(1000);
+        reader.setPageSize(pageSize);
 
         reader.setRowMapper(
                 (rs, rowNum) -> {
