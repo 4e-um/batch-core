@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.template.worker.global.listener.PartitionTimingListener;
 import com.template.worker.jobs.invoice.model.InvoiceAggregationRow;
 import com.template.worker.jobs.invoice.model.InvoiceEntity;
 import com.template.worker.jobs.invoice.processor.InvoiceProcessor;
@@ -26,7 +27,7 @@ public class InvoiceWorkerStepConfig {
     private final ItemReader<InvoiceAggregationRow> invoicePagingReader;
     private final InvoiceProcessor processor;
     private final ItemWriter<InvoiceEntity> invoiceWriter;
-    private final InvoiceStepLoggingListener stepLoggingListener;
+    private final PartitionTimingListener partitionTimingListener;
 
     @Value("${spring.batch.jobs.invoice.chunk-size}")
     int chunk;
@@ -39,7 +40,7 @@ public class InvoiceWorkerStepConfig {
                 .reader(invoicePagingReader) // ✅ StepScope Bean 주입
                 .processor(processor)
                 .writer(invoiceWriter) // ✅ 정상 writer
-                .listener(stepLoggingListener)
+                .listener(partitionTimingListener)
                 .build();
     }
 }
