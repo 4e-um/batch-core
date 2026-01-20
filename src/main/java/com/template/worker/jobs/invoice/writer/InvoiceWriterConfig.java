@@ -59,7 +59,7 @@ public class InvoiceWriterConfig {
                                 to_date(:invMonth, 'YYYYMM') - interval '1 second',
                                 -- 납기일: 당월 말일 23:59:59
                                 to_date(:invMonth, 'YYYYMM') + interval '1 month' - interval '1 second',
-                                now() AT TIME ZONE 'Asia/Seoul'
+                                now()
                             FROM subscription s
                             JOIN customer c
                             ON s.customer_id = c.customer_id
