@@ -18,17 +18,17 @@ public class InvoicePartitionHandlerConfig {
 
     private final InvoiceWorkerStepConfig workerStep;
 
-        @Value("${spring.batch.jobs.invoice.partition.grid-size}")
-        private int gridSize;
+    @Value("${spring.batch.jobs.invoice.partition.grid-size}")
+    private int gridSize;
 
-        @Value("${spring.batch.jobs.invoice.partition.thread.core-pool-size}")
-        private int corePoolSize;
+    @Value("${spring.batch.jobs.invoice.partition.thread.core-pool-size}")
+    private int corePoolSize;
 
-        @Value("${spring.batch.jobs.invoice.partition.thread.max-pool-size}")
-        private int maxPoolSize;
+    @Value("${spring.batch.jobs.invoice.partition.thread.max-pool-size}")
+    private int maxPoolSize;
 
-        @Value("${spring.batch.jobs.invoice.partition.thread.queue-capacity}")
-        private int queueCapacity;
+    @Value("${spring.batch.jobs.invoice.partition.thread.queue-capacity}")
+    private int queueCapacity;
 
     @Bean
     public TaskExecutor invoicePartitionExecutor() {

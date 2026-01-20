@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DATABASE:app_db}?reWriteBatchedStatements=true
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${ :app_db}?reWriteBatchedStatements=true
     username: ${POSTGRES_USER:app_user}
     password: ${POSTGRES_PASSWORD:app_password}
     hikari:

@@ -23,7 +23,7 @@ public class InvoiceItemWriter {
                 .dataSource(dataSource)
                 .sql(
                         """
-                    INSERT INTO invoice_item_test (
+                    INSERT INTO invoice_item (
                         sub_id,
                         inv_month,
                         name,

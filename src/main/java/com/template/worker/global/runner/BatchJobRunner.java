@@ -37,8 +37,7 @@ public class BatchJobRunner implements ApplicationRunner {
         String invMonth =
                 args.getOptionValues("invMonth").stream()
                         .findFirst()
-                        .orElseThrow(
-                                () -> new IllegalArgumentException("Missing invMonth=yyyyMM"));
+                        .orElseThrow(() -> new IllegalArgumentException("Missing invMonth=yyyyMM"));
 
         Job job = jobRegistry.getJob(jobName);
 
