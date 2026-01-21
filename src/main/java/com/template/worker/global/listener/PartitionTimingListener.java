@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PartitionTimingListener implements StepExecutionListener {
 
     private static final String START_TIME = "startTime";
+    private static final String HAS_DATA = "HAS_DATA";
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
@@ -23,12 +24,21 @@ public class PartitionTimingListener implements StepExecutionListener {
         long startTime = stepExecution.getExecutionContext().getLong(START_TIME);
         long duration = System.currentTimeMillis() - startTime;
 
+        long readCount = stepExecution.getReadCount();
+        long writeCount = stepExecution.getWriteCount();
+
         log.info(
                 "[PARTITION] name={} read={} write={} time={}ms",
                 stepExecution.getStepName(),
-                stepExecution.getReadCount(),
-                stepExecution.getWriteCount(),
+                readCount,
+                writeCount,
                 duration);
+
+        // ✅ 이 partition에서 데이터가 하나라도 있으면 JobExecution에 표시
+        if (readCount > 0) {
+            stepExecution.getJobExecution().getExecutionContext().put(HAS_DATA, true);
+        }
+
         return stepExecution.getExitStatus();
     }
 }

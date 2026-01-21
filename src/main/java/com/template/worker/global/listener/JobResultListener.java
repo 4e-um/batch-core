@@ -3,17 +3,22 @@ package com.template.worker.global.listener;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import org.springframework.batch.core.BatchStatus;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.annotation.AfterJob;
 import org.springframework.batch.core.annotation.BeforeJob;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-/** Batch Job의 실행 결과 Listener - 모든 Job의 실행 결과를 공통 포맷으로 수집한다. - 성공/실패 여부, 실행 시간, 실패 원인을 중앙에서 통제한다. */
 @Component
 @RequiredArgsConstructor
 public class JobResultListener {
+
+    private static final String HAS_DATA = "HAS_DATA";
+    private static final ExitStatus NO_DATA_EXIT_STATUS = new ExitStatus("NO_DATA", "⚠ 데이터가 없습니다.");
 
     private final JobLogger jobLogger;
 
@@ -22,6 +27,7 @@ public class JobResultListener {
 
     @AfterJob
     public void after(JobExecution jobExecution) {
+        ExecutionContext context = jobExecution.getExecutionContext();
         String jobName = jobExecution.getJobInstance().getJobName();
 
         LocalDateTime start = jobExecution.getStartTime();
@@ -29,6 +35,22 @@ public class JobResultListener {
         long duration =
                 (start != null && end != null) ? Duration.between(start, end).toMillis() : 0L;
 
+        boolean hasData =
+                context.containsKey(HAS_DATA) && Boolean.TRUE.equals(context.get(HAS_DATA));
+
+        // ✅ partition 전체에서 데이터가 하나도 없었던 경우 → 실패
+        if (!hasData) {
+            jobExecution.setStatus(BatchStatus.FAILED);
+            jobExecution.setExitStatus(NO_DATA_EXIT_STATUS);
+
+            jobLogger.jobFailed(
+                    jobName,
+                    duration,
+                    new IllegalStateException(NO_DATA_EXIT_STATUS.getExitDescription()));
+            return;
+        }
+
+        // 기존 성공/실패 로직 유지
         if (jobExecution.getStatus().isUnsuccessful()) {
             Throwable cause =
                     jobExecution.getAllFailureExceptions().isEmpty()
