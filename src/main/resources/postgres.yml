@@ -22,5 +22,29 @@ logging:
     org.springframework.jdbc.core: WARN
     org.springframework.jdbc.datasource: WARN
     org.postgresql: WARN
-    #com.zaxxer.hikari: INFO
+
+---
+# Cloud Run 전용 프로필 - Socket Factory 사용 (VPC Connector 불필요)
+spring:
+  config:
+    activate:
+      on-profile: cloudrun
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    # Socket Factory를 통한 CloudSQL 연결 (Cloud Run 내장 /cloudsql 소켓 사용)
+    url: jdbc:postgresql:///${POSTGRES_DATABASE:app_db}?cloudSqlInstance=${DB_INSTANCE_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.postgres.SocketFactory
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      maximum-pool-size: 5      # Cloud Run 인스턴스당 연결 제한
+      minimum-idle: 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 300000
+
+logging:
+  level:
+    com.google.cloud.sql: INFO
+    org.postgresql: WARN
 

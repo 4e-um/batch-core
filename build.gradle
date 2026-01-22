@@ -63,8 +63,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'com.h2database:h2'
 
-    // Cloud Run
-    implementation "com.google.cloud.sql:postgres-socket-factory:1.17.1"
+    // Cloud Run - CloudSQL Socket Factory
+    implementation "com.google.cloud.sql:postgres-socket-factory:1.21.0"
 }
 
 // ============================================================================
