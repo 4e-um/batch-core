@@ -82,5 +82,9 @@ logging:
     root: INFO
     org.springframework.batch: INFO
     com.template.worker: INFO
+    org.springframework.batch.core.job: INFO
+    org.springframework.batch.core.step: INFO
+    org.springframework.batch.core.partition: DEBUG
+    org.springframework.batch.core.step.tasklet: DEBUG
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{30} - %msg%n"

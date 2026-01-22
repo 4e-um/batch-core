@@ -45,6 +45,11 @@ spring:
 
 logging:
   level:
+
+    root: INFO
+    com.zaxxer.hikari.HikariPool: DEBUG
+    org.springframework.jdbc.core: WARN
+    org.springframework.jdbc.datasource: WARN
     com.google.cloud.sql: INFO
     org.postgresql: WARN
 
