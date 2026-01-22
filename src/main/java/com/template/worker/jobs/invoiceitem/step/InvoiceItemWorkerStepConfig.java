@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.template.worker.global.listener.PartitionTimingListener;
+import com.template.worker.global.listener.TimeBasedChunkListener;
 import com.template.worker.jobs.invoiceitem.model.InvoiceItemAggregateRow;
 import com.template.worker.jobs.invoiceitem.model.InvoiceItemRecord;
 import com.template.worker.jobs.invoiceitem.processor.InvoiceItemProcessor;
@@ -27,6 +28,7 @@ public class InvoiceItemWorkerStepConfig {
     private final InvoiceItemProcessor processor;
     private final ItemWriter<InvoiceItemRecord> writer;
     private final PartitionTimingListener partitionTimingListener;
+    private final TimeBasedChunkListener timeBasedChunkListener;
 
     @Value("${spring.batch.jobs.invoice-item.chunk-size}")
     int chunk;
@@ -39,6 +41,7 @@ public class InvoiceItemWorkerStepConfig {
                 .processor(processor)
                 .writer(writer)
                 .listener(partitionTimingListener)
+                .listener(timeBasedChunkListener)
                 .build();
     }
 }

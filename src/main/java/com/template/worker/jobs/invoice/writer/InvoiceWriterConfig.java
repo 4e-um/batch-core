@@ -28,7 +28,7 @@ public class InvoiceWriterConfig {
                 .dataSource(dataSource)
                 .sql(
                         """
-                    INSERT INTO invoice (
+                    INSERT INTO invoice_test (
                                 inv_no,
                                 sub_id,
                                 name,
