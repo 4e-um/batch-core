@@ -30,22 +30,52 @@ public class InvoiceItemReader {
 
     @Bean
     @StepScope
-    public JdbcPagingItemReader<InvoiceItemAggregateRow> reader(
+    public JdbcPagingItemReader<InvoiceItemAggregateRow> planDiscountReader(
             @Value("#{stepExecutionContext['minValue']}") Long minValue,
             @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
             @Value("#{jobParameters['invMonth']}") String invMonth,
             @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
+        return buildReader(
+                minValue, maxValue, invMonth, pageSize, queryProvider.planAndDiscountSql(), "planDiscountReader");
+    }
+
+    @Bean
+    @StepScope
+    public JdbcPagingItemReader<InvoiceItemAggregateRow> microPaymentReader(
+            @Value("#{stepExecutionContext['minValue']}") Long minValue,
+            @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
+            @Value("#{jobParameters['invMonth']}") String invMonth,
+            @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
+        return buildReader(
+                minValue, maxValue, invMonth, pageSize, queryProvider.microPaymentQuery(), "microPaymentReader");
+    }
+
+    @Bean
+    @StepScope
+    public JdbcPagingItemReader<InvoiceItemAggregateRow> vasReader(
+            @Value("#{stepExecutionContext['minValue']}") Long minValue,
+            @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
+            @Value("#{jobParameters['invMonth']}") String invMonth,
+            @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
+        return buildReader(minValue, maxValue, invMonth, pageSize, queryProvider.vasQuery(), "vasReader");
+    }
+
+    private JdbcPagingItemReader<InvoiceItemAggregateRow> buildReader(
+            Long minValue,
+            Long maxValue,
+            String invMonth,
+            int pageSize,
+            String sql,
+            String name) {
 
         YearMonth yearMonth = YearMonth.parse(invMonth, DateTimeFormatter.ofPattern("yyyyMM"));
-
         LocalDateTime startOfBillingPeriod = yearMonth.minusMonths(1).atDay(1).atStartOfDay();
-
         LocalDateTime endOfBillingPeriod = yearMonth.atDay(1).atStartOfDay();
 
-        PagingQueryProvider pqueryProvider = pagingQueryProvider();
+        PagingQueryProvider pqueryProvider = pagingQueryProvider(sql);
 
         return new JdbcPagingItemReaderBuilder<InvoiceItemAggregateRow>()
-                .name("invoiceItemReader")
+                .name(name)
                 .dataSource(dataSource)
                 .queryProvider(pqueryProvider)
                 .parameterValues(
@@ -70,13 +100,13 @@ public class InvoiceItemReader {
                 .build();
     }
 
-    private PagingQueryProvider pagingQueryProvider() {
+    private PagingQueryProvider pagingQueryProvider(String sql) {
 
         PostgresPagingQueryProvider provider = new PostgresPagingQueryProvider();
 
         provider.setSelectClause(
                 "SELECT sub_id, inv_month, type, value_type, name, value, target_scope, source_id");
-        provider.setFromClause("FROM ( " + queryProvider.fullUnionSql() + " ) t");
+        provider.setFromClause("FROM ( " + sql + " ) t");
         provider.setWhereClause("WHERE t.sub_id BETWEEN :minValue AND :maxValue");
         provider.setSortKeys(
                 (Map.of(

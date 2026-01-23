@@ -42,9 +42,23 @@ public class InvoiceItemPartitionHandlerConfig {
     }
 
     @Bean
-    public PartitionHandler invoiceItemPartitionHandler() {
+    public PartitionHandler planPartitionHandler() {
+        return buildPartitionHandler(workerStep.planDiscountWorkerStep());
+    }
+
+    @Bean
+    public PartitionHandler microPartitionHandler() {
+        return buildPartitionHandler(workerStep.microPaymentWorkerStep());
+    }
+
+    @Bean
+    public PartitionHandler vasPartitionHandler() {
+        return buildPartitionHandler(workerStep.vasWorkerStep());
+    }
+
+    private PartitionHandler buildPartitionHandler(org.springframework.batch.core.Step step) {
         TaskExecutorPartitionHandler handler = new TaskExecutorPartitionHandler();
-        handler.setStep(workerStep.invoiceItemWorkerStep());
+        handler.setStep(step);
         handler.setTaskExecutor(invoiceItemPartitionExecutor());
         handler.setGridSize(gridSize);
         return handler;

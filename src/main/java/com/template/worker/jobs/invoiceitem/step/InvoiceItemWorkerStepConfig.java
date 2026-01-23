@@ -24,24 +24,38 @@ public class InvoiceItemWorkerStepConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager primaryTxManager;
-    private final ItemReader<InvoiceItemAggregateRow> reader;
+    private final ItemReader<InvoiceItemAggregateRow> planDiscountReader;
+    private final ItemReader<InvoiceItemAggregateRow> microPaymentReader;
+    private final ItemReader<InvoiceItemAggregateRow> vasReader;
     private final InvoiceItemProcessor processor;
     private final ItemWriter<InvoiceItemRecord> writer;
     private final PartitionTimingListener partitionTimingListener;
-    private final TimeBasedChunkListener timeBasedChunkListener;
 
     @Value("${spring.batch.jobs.invoice-item.chunk-size}")
     int chunk;
 
     @Bean
-    public Step invoiceItemWorkerStep() {
-        return new StepBuilder("invoiceItemWorkerStep", jobRepository)
+    public Step planDiscountWorkerStep() {
+        return buildWorkerStep("planDiscountWorkerStep", planDiscountReader);
+    }
+
+    @Bean
+    public Step microPaymentWorkerStep() {
+        return buildWorkerStep("microPaymentWorkerStep", microPaymentReader);
+    }
+
+    @Bean
+    public Step vasWorkerStep() {
+        return buildWorkerStep("vasWorkerStep", vasReader);
+    }
+
+    private Step buildWorkerStep(String stepName, ItemReader<InvoiceItemAggregateRow> reader) {
+        return new StepBuilder(stepName, jobRepository)
                 .<InvoiceItemAggregateRow, InvoiceItemRecord>chunk(chunk, primaryTxManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
                 .listener(partitionTimingListener)
-                .listener(timeBasedChunkListener)
                 .build();
     }
 }

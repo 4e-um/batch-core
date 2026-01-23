@@ -28,7 +28,9 @@ public class InvoiceItemJobConfig {
         return new JobBuilder("invoiceItemJob", jobRepository)
                 .validator(jobParameterValidator)
                 .listener(jobResultListener)
-                .start(partitionStep.invoiceItemPartitionStep())
+                .start(partitionStep.planDiscountPartitionStep())
+                .next(partitionStep.microPaymentPartitionStep())
+                .next(partitionStep.vasPartitionStep())
                 .build();
     }
 }
