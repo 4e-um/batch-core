@@ -6,9 +6,7 @@ import org.springframework.stereotype.Component;
 public class InvoiceItemQueryProvider {
 
     public String planAndDiscountSql() {
-        return planSql()
-                + "\n UNION ALL \n"
-                + discountSql();
+        return planSql() + "\n UNION ALL \n" + discountSql();
     }
 
     public String vasQuery() {

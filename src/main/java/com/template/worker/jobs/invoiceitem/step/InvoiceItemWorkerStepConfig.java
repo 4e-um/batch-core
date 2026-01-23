@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.template.worker.global.listener.PartitionTimingListener;
-import com.template.worker.global.listener.TimeBasedChunkListener;
 import com.template.worker.jobs.invoiceitem.model.InvoiceItemAggregateRow;
 import com.template.worker.jobs.invoiceitem.model.InvoiceItemRecord;
 import com.template.worker.jobs.invoiceitem.processor.InvoiceItemProcessor;

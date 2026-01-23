@@ -36,7 +36,12 @@ public class InvoiceItemReader {
             @Value("#{jobParameters['invMonth']}") String invMonth,
             @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
         return buildReader(
-                minValue, maxValue, invMonth, pageSize, queryProvider.planAndDiscountSql(), "planDiscountReader");
+                minValue,
+                maxValue,
+                invMonth,
+                pageSize,
+                queryProvider.planAndDiscountSql(),
+                "planDiscountReader");
     }
 
     @Bean
@@ -47,7 +52,12 @@ public class InvoiceItemReader {
             @Value("#{jobParameters['invMonth']}") String invMonth,
             @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
         return buildReader(
-                minValue, maxValue, invMonth, pageSize, queryProvider.microPaymentQuery(), "microPaymentReader");
+                minValue,
+                maxValue,
+                invMonth,
+                pageSize,
+                queryProvider.microPaymentQuery(),
+                "microPaymentReader");
     }
 
     @Bean
@@ -57,16 +67,12 @@ public class InvoiceItemReader {
             @Value("#{stepExecutionContext['maxValue']}") Long maxValue,
             @Value("#{jobParameters['invMonth']}") String invMonth,
             @Value("${spring.batch.jobs.invoice-item.page-size}") int pageSize) {
-        return buildReader(minValue, maxValue, invMonth, pageSize, queryProvider.vasQuery(), "vasReader");
+        return buildReader(
+                minValue, maxValue, invMonth, pageSize, queryProvider.vasQuery(), "vasReader");
     }
 
     private JdbcPagingItemReader<InvoiceItemAggregateRow> buildReader(
-            Long minValue,
-            Long maxValue,
-            String invMonth,
-            int pageSize,
-            String sql,
-            String name) {
+            Long minValue, Long maxValue, String invMonth, int pageSize, String sql, String name) {
 
         YearMonth yearMonth = YearMonth.parse(invMonth, DateTimeFormatter.ofPattern("yyyyMM"));
         LocalDateTime startOfBillingPeriod = yearMonth.minusMonths(1).atDay(1).atStartOfDay();

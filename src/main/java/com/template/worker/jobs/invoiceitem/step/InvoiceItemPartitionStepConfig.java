@@ -21,12 +21,14 @@ public class InvoiceItemPartitionStepConfig {
 
     @Bean
     public Step planDiscountPartitionStep() {
-        return buildPartitionStep("planDiscountPartitionStep", partitionHandler.planPartitionHandler());
+        return buildPartitionStep(
+                "planDiscountPartitionStep", partitionHandler.planPartitionHandler());
     }
 
     @Bean
     public Step microPaymentPartitionStep() {
-        return buildPartitionStep("microPaymentPartitionStep", partitionHandler.microPartitionHandler());
+        return buildPartitionStep(
+                "microPaymentPartitionStep", partitionHandler.microPartitionHandler());
     }
 
     @Bean
@@ -34,7 +36,8 @@ public class InvoiceItemPartitionStepConfig {
         return buildPartitionStep("vasPartitionStep", partitionHandler.vasPartitionHandler());
     }
 
-    private Step buildPartitionStep(String stepName, org.springframework.batch.core.partition.PartitionHandler handler) {
+    private Step buildPartitionStep(
+            String stepName, org.springframework.batch.core.partition.PartitionHandler handler) {
         return new StepBuilder(stepName, jobRepository)
                 .partitioner(stepName.replace("PartitionStep", "WorkerStep"), partitioner)
                 .partitionHandler(handler)
