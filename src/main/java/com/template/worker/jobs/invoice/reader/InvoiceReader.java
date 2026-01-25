@@ -49,30 +49,30 @@ public class InvoiceReader {
 
         PostgresPagingQueryProvider queryProvider = new PostgresPagingQueryProvider();
 
-        queryProvider.setSelectClause(
-                """
-                            SELECT
-                                sub_id,
-                                SUM(CASE WHEN value > 0 THEN value ELSE 0 END) AS total_amount,
-                                SUM(CASE WHEN value < 0 THEN ABS(value) ELSE 0 END) AS total_discount
-                        """);
+            queryProvider.setSelectClause(
+                    """
+                                SELECT
+                                    sub_id,
+                                    SUM(value) FILTER(WHERE value > 0) AS total_amount,
+                                    SUM(ABS(value)) FILTER(WHERE value < 0) AS total_discount
+                            """);
 
-        queryProvider.setFromClause("""
-                    FROM invoice_item
-                """);
+            queryProvider.setFromClause("""
+                        FROM invoice_item
+                    """);
 
-        queryProvider.setWhereClause(
-                """
-                            WHERE inv_month = :invMonth
-                              AND sub_id BETWEEN :minSubId AND :maxSubId
-                        """);
+            queryProvider.setWhereClause(
+                    """
+                                WHERE inv_month = :invMonth
+                                  AND sub_id BETWEEN :minSubId AND :maxSubId
+                            """);
 
-        // ⭐ GROUP BY = ORDER BY (paging 안정성 핵심)
-        queryProvider.setGroupClause("""
-                    GROUP BY sub_id
-                """);
+            // ⭐ GROUP BY = ORDER BY (paging 안정성 핵심)
+            queryProvider.setGroupClause("""
+                        GROUP BY sub_id
+                    """);
 
-        queryProvider.setSortKeys(Map.of("sub_id", Order.ASCENDING));
+            queryProvider.setSortKeys(Map.of("sub_id", Order.ASCENDING));
 
         reader.setQueryProvider(queryProvider);
         Map<String, Object> params = new HashMap<>();
