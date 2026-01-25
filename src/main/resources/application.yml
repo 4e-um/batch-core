@@ -11,6 +11,10 @@ spring:
   application:
     name: batch-core
 
+  autoconfigure:
+    exclude:
+      - io.opentelemetry.instrumentation.spring.autoconfigure.OpenTelemetryAutoConfiguration
+
   main:
     web-application-type: none
     time-zone: Asia/Seoul

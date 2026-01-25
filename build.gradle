@@ -28,6 +28,14 @@ repositories {
     mavenCentral()
 }
 
+// OpenTelemetry BOM for consistent versions
+dependencyManagement {
+    imports {
+        mavenBom 'io.opentelemetry:opentelemetry-bom:1.44.1'
+        mavenBom 'io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha:2.11.0-alpha'
+    }
+}
+
 // ============================================================================
 // 커버리지 제외 패턴 (JaCoCo, SonarQube 공통)
 // ============================================================================
