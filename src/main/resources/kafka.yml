@@ -1,0 +1,23 @@
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:pkc-oxqxx9.us-east-1.aws.confluent.cloud:9092}
+
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username='${KAFKA_API_KEY:EPO6DS6OXW7GYVEE}'
+        password='${KAFKA_API_SECRET:cfltJj+U/TvM2TfzfqxpXIu5xDE/bPGe5sfIff5mrLZ9Usx4K9LudKBWPLIGG3QQ}';
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      retries: 2147483647
+      enable-idempotence: true
+      batch-size: 131072
+      acks: 1
+      linger-ms: 20
+      compression-type: lz4
+      max-in-flight-requests-per-connection: 5
+      buffer-memory: 67108864
