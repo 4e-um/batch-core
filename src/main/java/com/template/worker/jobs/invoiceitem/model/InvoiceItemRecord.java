@@ -15,5 +15,6 @@ public class InvoiceItemRecord {
     private String valueType;
     private Double value;
     private String targetScope;
+    private Long sourceId;
     private LocalDateTime createdAt;
 }

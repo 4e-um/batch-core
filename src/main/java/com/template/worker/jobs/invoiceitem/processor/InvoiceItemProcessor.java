@@ -26,6 +26,7 @@ public class InvoiceItemProcessor
                 .name(row.name())
                 .value(row.value())
                 .targetScope(row.targetScope())
+                .sourceId(row.sourceId())
                 .createdAt(LocalDateTime.now())
                 .build();
     }
