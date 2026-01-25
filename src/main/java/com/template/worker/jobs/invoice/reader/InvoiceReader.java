@@ -49,31 +49,33 @@ public class InvoiceReader {
 
         PostgresPagingQueryProvider queryProvider = new PostgresPagingQueryProvider();
 
-            queryProvider.setSelectClause(
-                    """
+        queryProvider.setSelectClause(
+                """
                                 SELECT
                                     sub_id,
                                     SUM(value) FILTER(WHERE value > 0) AS total_amount,
                                     SUM(ABS(value)) FILTER(WHERE value < 0) AS total_discount
                             """);
 
-            queryProvider.setFromClause("""
+        queryProvider.setFromClause(
+                """
                         FROM invoice_item
                     """);
 
-            queryProvider.setWhereClause(
-                    """
+        queryProvider.setWhereClause(
+                """
                                 WHERE inv_month = :invMonth
                                   AND sub_id BETWEEN :minSubId AND :maxSubId
                                   AND value <> 0
                             """);
 
-            // ⭐ GROUP BY = ORDER BY (paging 안정성 핵심)
-            queryProvider.setGroupClause("""
+        // ⭐ GROUP BY = ORDER BY (paging 안정성 핵심)
+        queryProvider.setGroupClause(
+                """
                         GROUP BY sub_id
                     """);
 
-            queryProvider.setSortKeys(Map.of("sub_id", Order.ASCENDING));
+        queryProvider.setSortKeys(Map.of("sub_id", Order.ASCENDING));
 
         reader.setQueryProvider(queryProvider);
         Map<String, Object> params = new HashMap<>();
