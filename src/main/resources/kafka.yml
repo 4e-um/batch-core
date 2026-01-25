@@ -1,14 +1,14 @@
 spring:
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:pkc-oxqxx9.us-east-1.aws.confluent.cloud:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
     properties:
       security.protocol: SASL_SSL
       sasl.mechanism: PLAIN
       sasl.jaas.config: >
         org.apache.kafka.common.security.plain.PlainLoginModule required
-        username='${KAFKA_API_KEY:EPO6DS6OXW7GYVEE}'
-        password='${KAFKA_API_SECRET:cfltJj+U/TvM2TfzfqxpXIu5xDE/bPGe5sfIff5mrLZ9Usx4K9LudKBWPLIGG3QQ}';
+        username='${KAFKA_API_KEY}'
+        password='${KAFKA_API_SECRET}';
 
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
