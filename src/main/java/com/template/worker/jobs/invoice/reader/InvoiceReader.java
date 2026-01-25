@@ -58,26 +58,29 @@ public class InvoiceReader {
 
         queryProvider.setSelectClause(
                 """
-                            SELECT
-                                sub_id,
-                                SUM(CASE WHEN value > 0 THEN value ELSE 0 END) AS total_amount,
-                                SUM(CASE WHEN value < 0 THEN ABS(value) ELSE 0 END) AS total_discount
-                        """);
+                                SELECT
+                                    sub_id,
+                                    SUM(value) FILTER(WHERE value > 0) AS total_amount,
+                                    SUM(ABS(value)) FILTER(WHERE value < 0) AS total_discount
+                            """);
 
-        queryProvider.setFromClause("""
-                    FROM invoice_item
-                """);
+        queryProvider.setFromClause(
+                """
+                        FROM invoice_item
+                    """);
 
         queryProvider.setWhereClause(
                 """
-                            WHERE inv_month = :invMonth
-                              AND sub_id BETWEEN :minSubId AND :maxSubId
-                        """);
+                                WHERE inv_month = :invMonth
+                                  AND sub_id BETWEEN :minSubId AND :maxSubId
+                                  AND value <> 0
+                            """);
 
         // ⭐ GROUP BY = ORDER BY (paging 안정성 핵심)
-        queryProvider.setGroupClause("""
-                    GROUP BY sub_id
-                """);
+        queryProvider.setGroupClause(
+                """
+                        GROUP BY sub_id
+                    """);
 
         queryProvider.setSortKeys(Map.of("sub_id", Order.ASCENDING));
 
