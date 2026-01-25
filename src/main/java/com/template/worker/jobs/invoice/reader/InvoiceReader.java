@@ -65,6 +65,7 @@ public class InvoiceReader {
                     """
                                 WHERE inv_month = :invMonth
                                   AND sub_id BETWEEN :minSubId AND :maxSubId
+                                  AND value <> 0
                             """);
 
             // ⭐ GROUP BY = ORDER BY (paging 안정성 핵심)
