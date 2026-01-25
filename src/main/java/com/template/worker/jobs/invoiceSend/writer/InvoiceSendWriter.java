@@ -1,21 +1,22 @@
 package com.template.worker.jobs.invoiceSend.writer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
-import com.template.worker.jobs.invoiceSend.processor.InvoiceSendProcessor;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoiceSend.processor.InvoiceSendProcessor;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class InvoiceSendWriter
-        implements ItemWriter<InvoiceAggregateRecord>, ItemStream {
+public class InvoiceSendWriter implements ItemWriter<InvoiceAggregateRecord>, ItemStream {
 
     private static final String TOPIC = "invoice-noti";
 
@@ -54,10 +55,6 @@ public class InvoiceSendWriter
 
     private void send(InvoiceAggregateRecord invoice) throws Exception {
         String payload = objectMapper.writeValueAsString(invoice);
-        kafkaTemplate.send(
-                TOPIC,
-                String.valueOf(invoice.invId()),
-                payload
-        );
+        kafkaTemplate.send(TOPIC, String.valueOf(invoice.invId()), payload);
     }
 }

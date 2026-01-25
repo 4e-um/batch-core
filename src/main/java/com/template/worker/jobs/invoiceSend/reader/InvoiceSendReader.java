@@ -1,7 +1,7 @@
 package com.template.worker.jobs.invoiceSend.reader;
 
-import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
-import lombok.RequiredArgsConstructor;
+import javax.sql.DataSource;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.DataClassRowMapper;
 
-import javax.sql.DataSource;
+import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -18,14 +20,12 @@ public class InvoiceSendReader {
     @Bean
     @StepScope
     public JdbcCursorItemReader<InvoiceSendRecord> invoiceJoinReader(
-            DataSource dataSource,
-            @Value("#{jobParameters['invMonth']}") String invMonth
-    ) {
-        JdbcCursorItemReader<InvoiceSendRecord> reader =
-                new JdbcCursorItemReader<>();
+            DataSource dataSource, @Value("#{jobParameters['invMonth']}") String invMonth) {
+        JdbcCursorItemReader<InvoiceSendRecord> reader = new JdbcCursorItemReader<>();
 
         reader.setDataSource(dataSource);
-        reader.setSql("""
+        reader.setSql(
+                """
         SELECT
             i.inv_id,
             i.inv_no,
@@ -50,10 +50,11 @@ public class InvoiceSendReader {
         ORDER BY i.inv_id
     """);
 
-        reader.setPreparedStatementSetter(ps -> {
+        reader.setPreparedStatementSetter(
+                ps -> {
                     ps.setString(1, invMonth);
                     ps.setString(2, invMonth);
-        });
+                });
         reader.setFetchSize(1000);
 
         reader.setRowMapper(new DataClassRowMapper<>(InvoiceSendRecord.class));

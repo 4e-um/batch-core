@@ -1,14 +1,15 @@
 package com.template.worker.jobs.invoiceSend.processor;
 
-import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
-import com.template.worker.jobs.invoiceSend.model.InvoiceItemRecord;
-import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoiceSend.model.InvoiceItemRecord;
+import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
 
 @Component
 @StepScope
@@ -47,12 +48,12 @@ public class InvoiceSendProcessor
     }
 
     private void addItem(InvoiceSendRecord row) {
-        currentItems.add(new InvoiceItemRecord(
-                row.invItemId(),
-                row.itemName(),
-                row.itemType(),
-                row.itemValue().intValue()
-        ));
+        currentItems.add(
+                new InvoiceItemRecord(
+                        row.invItemId(),
+                        row.itemName(),
+                        row.itemType(),
+                        row.itemValue().intValue()));
     }
 
     public InvoiceAggregateRecord flushLast() {
@@ -72,7 +73,6 @@ public class InvoiceSendProcessor
                 currentInvoice.totalPrice(),
                 currentInvoice.createdAt(),
                 currentInvoice.dueDate(),
-                List.copyOf(currentItems)
-        );
+                List.copyOf(currentItems));
     }
 }

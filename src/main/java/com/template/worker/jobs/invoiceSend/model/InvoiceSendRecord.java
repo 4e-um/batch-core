@@ -3,7 +3,6 @@ package com.template.worker.jobs.invoiceSend.model;
 import java.time.LocalDateTime;
 
 public record InvoiceSendRecord(
-
         Long invId,
         Long invNo,
         Long subId,
@@ -14,10 +13,7 @@ public record InvoiceSendRecord(
         Integer totalPrice,
         LocalDateTime createdAt,
         LocalDateTime dueDate,
-
         Long invItemId,
         String itemName,
         String itemType,
-        Double itemValue
-) {
-}
+        Double itemValue) {}

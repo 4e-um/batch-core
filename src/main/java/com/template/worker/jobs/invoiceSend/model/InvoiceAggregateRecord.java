@@ -14,7 +14,6 @@ public record InvoiceAggregateRecord(
         Integer totalPrice,
         LocalDateTime createdAt,
         LocalDateTime dueDate,
-
         List<InvoiceItemRecord> items
 ) {
 }

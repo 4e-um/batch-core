@@ -1,10 +1,5 @@
 package com.template.worker.jobs.invoiceSend.job;
 
-import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
-import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
-import com.template.worker.jobs.invoiceSend.processor.InvoiceSendProcessor;
-import com.template.worker.jobs.invoiceSend.writer.InvoiceSendWriter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -15,6 +10,13 @@ import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
+import com.template.worker.jobs.invoiceSend.processor.InvoiceSendProcessor;
+import com.template.worker.jobs.invoiceSend.writer.InvoiceSendWriter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -37,14 +39,9 @@ public class InvoiceSendJobConfig {
     }
 
     @Bean
-    public Step invoiceSendStep(
-            JdbcCursorItemReader<InvoiceSendRecord> invoiceJoinReader
-    ) {
+    public Step invoiceSendStep(JdbcCursorItemReader<InvoiceSendRecord> invoiceJoinReader) {
         return new StepBuilder("invoiceSendStep", jobRepository)
-                .<InvoiceSendRecord, InvoiceAggregateRecord>chunk(
-                        CHUNK_SIZE,
-                        transactionManager
-                )
+                .<InvoiceSendRecord, InvoiceAggregateRecord>chunk(CHUNK_SIZE, transactionManager)
                 .reader(invoiceJoinReader)
                 .processor(invoiceSendProcessor)
                 .writer(invoiceSendWriter)
