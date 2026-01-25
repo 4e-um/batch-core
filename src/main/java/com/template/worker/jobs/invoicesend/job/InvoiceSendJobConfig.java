@@ -45,8 +45,6 @@ public class InvoiceSendJobConfig {
                 .reader(invoiceJoinReader)
                 .processor(invoiceSendProcessor)
                 .writer(invoiceSendWriter)
-                .listener(invoiceSendProcessor)
-                .listener(invoiceSendWriter)
                 .build();
     }
 }
