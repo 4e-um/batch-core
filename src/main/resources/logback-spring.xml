@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <springProperty name="APP_NAME" source="spring.application.name" defaultValue="batch-core"/>
-
-    <!-- OTLP Appender: Logs → Alloy → Loki -->
-    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
-        <captureExperimentalAttributes>true</captureExperimentalAttributes>
-        <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
-    </appender>
-
-    <!-- Console: for local development -->
+    <!-- Console: always outputs (Cloud Logging captures this) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId:-},%X{spanId:-}] - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- prod: OTLP + Console -->
+    <!-- OTLP Appender: sends to Alloy -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+        <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+    </appender>
+
+    <!-- Async wrapper: makes OTEL non-blocking -->
+    <appender name="ASYNC_OTEL" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="OTEL"/>
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <!-- prod/cloudrun: Console + OTEL (async) -->
     <springProfile name="prod | cloudrun">
         <root level="INFO">
-            <appender-ref ref="OTEL"/>
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_OTEL"/>
         </root>
     </springProfile>
 
