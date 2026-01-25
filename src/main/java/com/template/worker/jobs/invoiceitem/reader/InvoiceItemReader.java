@@ -81,7 +81,8 @@ public class InvoiceItemReader {
             effectiveInvMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
         }
 
-        YearMonth yearMonth = YearMonth.parse(effectiveInvMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+        YearMonth yearMonth =
+                YearMonth.parse(effectiveInvMonth, DateTimeFormatter.ofPattern("yyyyMM"));
         LocalDateTime startOfBillingPeriod = yearMonth.minusMonths(1).atDay(1).atStartOfDay();
         LocalDateTime endOfBillingPeriod = yearMonth.atDay(1).atStartOfDay();
 
