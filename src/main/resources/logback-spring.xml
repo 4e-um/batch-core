@@ -1,39 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <springProperty name="APP_NAME" source="spring.application.name" defaultValue="template-worker"/>
-    <springProperty name="APP_ENV" source="spring.profiles.active" defaultValue="local"/>
-
-    <!-- prod: JSON format (Alloy/Loki) -->
-    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <fieldNames>
-                <timestamp>ts</timestamp>
-                <level>level</level>
-                <logger>logger</logger>
-                <message>msg</message>
-            </fieldNames>
-            <customFields>{"service":"${APP_NAME}","env":"${APP_ENV}"}</customFields>
-            <includeMdcKeyName>traceId</includeMdcKeyName>
-            <includeMdcKeyName>spanId</includeMdcKeyName>
-        </encoder>
-    </appender>
-
-    <!-- dev: Text format (readability) -->
-    <appender name="STDOUT_TEXT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- Console: always outputs (Cloud Logging captures this) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId:-},%X{spanId:-}] - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <springProfile name="prod">
+    <!-- OTLP Appender: sends to Alloy -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+        <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+    </appender>
+
+    <!-- Async wrapper: makes OTEL non-blocking -->
+    <appender name="ASYNC_OTEL" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="OTEL"/>
+        <queueSize>1024</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <!-- prod/cloudrun: Console + OTEL (async) -->
+    <springProfile name="prod | cloudrun">
         <root level="INFO">
-            <appender-ref ref="STDOUT_JSON"/>
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_OTEL"/>
         </root>
     </springProfile>
 
-    <springProfile name="!prod">
+    <!-- dev/local: Console only -->
+    <springProfile name="!prod &amp; !cloudrun">
         <root level="DEBUG">
-            <appender-ref ref="STDOUT_TEXT"/>
+            <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
 </configuration>
