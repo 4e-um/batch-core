@@ -1,4 +1,4 @@
-package com.template.worker.jobs.invoiceSend.processor;
+package com.template.worker.jobs.invoicesend.processor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,9 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
-import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
-import com.template.worker.jobs.invoiceSend.model.InvoiceItemRecord;
-import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
+import com.template.worker.jobs.invoicesend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoicesend.model.InvoiceItemRecord;
+import com.template.worker.jobs.invoicesend.model.InvoiceSendRecord;
 
 @Component
 @StepScope
@@ -57,7 +57,9 @@ public class InvoiceSendProcessor
     }
 
     public InvoiceAggregateRecord flushLast() {
-        if (currentInvId == null) return null;
+        if (currentInvId == null) {
+            return null;
+        }
         return buildAggregate();
     }
 

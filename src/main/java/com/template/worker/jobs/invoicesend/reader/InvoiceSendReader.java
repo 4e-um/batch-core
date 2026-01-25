@@ -1,4 +1,4 @@
-package com.template.worker.jobs.invoiceSend.reader;
+package com.template.worker.jobs.invoicesend.reader;
 
 import javax.sql.DataSource;
 
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.DataClassRowMapper;
 
-import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
+import com.template.worker.jobs.invoicesend.model.InvoiceSendRecord;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,29 +26,29 @@ public class InvoiceSendReader {
         reader.setDataSource(dataSource);
         reader.setSql(
                 """
-        SELECT
-            i.inv_id,
-            i.inv_no,
-            i.sub_id,
-            i.inv_month,
-            i.phone_enc,
-            i.email_enc,
-            i.name,
-            i.total_price,
-            i.created_at,
-            i.due_date,
-            ii.item_id AS inv_item_id,
-            ii.name    AS item_name,
-            ii.type    AS item_type,
-            ii.value   AS item_value
-        FROM invoice i
-        JOIN invoice_item ii
-          ON i.sub_id = ii.sub_id
-         AND i.inv_month = ii.inv_month
-         AND ii.inv_month = ?
-        WHERE i.inv_month = ?
-        ORDER BY i.inv_id
-    """);
+            SELECT
+                i.inv_id,
+                i.inv_no,
+                i.sub_id,
+                i.inv_month,
+                i.phone_enc,
+                i.email_enc,
+                i.name,
+                i.total_price,
+                i.created_at,
+                i.due_date,
+                ii.item_id AS inv_item_id,
+                ii.name    AS item_name,
+                ii.type    AS item_type,
+                ii.value   AS item_value
+            FROM invoice i
+            JOIN invoice_item ii
+              ON i.sub_id = ii.sub_id
+             AND i.inv_month = ii.inv_month
+             AND ii.inv_month = ?
+            WHERE i.inv_month = ?
+            ORDER BY i.inv_id
+            """);
 
         reader.setPreparedStatementSetter(
                 ps -> {

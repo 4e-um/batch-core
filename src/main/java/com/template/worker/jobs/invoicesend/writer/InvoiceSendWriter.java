@@ -1,4 +1,4 @@
-package com.template.worker.jobs.invoiceSend.writer;
+package com.template.worker.jobs.invoicesend.writer;
 
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemStream;
@@ -7,8 +7,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
-import com.template.worker.jobs.invoiceSend.processor.InvoiceSendProcessor;
+import com.template.worker.jobs.invoicesend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoicesend.processor.InvoiceSendProcessor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

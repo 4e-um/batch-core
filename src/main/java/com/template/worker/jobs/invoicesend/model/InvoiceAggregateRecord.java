@@ -1,4 +1,4 @@
-package com.template.worker.jobs.invoiceSend.model;
+package com.template.worker.jobs.invoicesend.model;
 
 import java.time.LocalDateTime;
 import java.util.List;

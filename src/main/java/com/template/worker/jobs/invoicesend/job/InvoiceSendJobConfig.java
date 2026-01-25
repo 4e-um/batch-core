@@ -1,4 +1,4 @@
-package com.template.worker.jobs.invoiceSend.job;
+package com.template.worker.jobs.invoicesend.job;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.template.worker.jobs.invoiceSend.model.InvoiceAggregateRecord;
-import com.template.worker.jobs.invoiceSend.model.InvoiceSendRecord;
-import com.template.worker.jobs.invoiceSend.processor.InvoiceSendProcessor;
-import com.template.worker.jobs.invoiceSend.writer.InvoiceSendWriter;
+import com.template.worker.jobs.invoicesend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoicesend.model.InvoiceSendRecord;
+import com.template.worker.jobs.invoicesend.processor.InvoiceSendProcessor;
+import com.template.worker.jobs.invoicesend.writer.InvoiceSendWriter;
 
 import lombok.RequiredArgsConstructor;
 
