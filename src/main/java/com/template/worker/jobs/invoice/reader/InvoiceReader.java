@@ -1,5 +1,7 @@
 package com.template.worker.jobs.invoice.reader;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +34,11 @@ public class InvoiceReader {
             @Value("#{stepExecutionContext[maxSubId]}") Long maxSubId,
             @Value("#{jobParameters[invMonth]}") String invMonth,
             @Value("${spring.batch.jobs.invoice.page-size}") int pageSize) {
+
+        String effectiveInvMonth = invMonth;
+        if (effectiveInvMonth == null || effectiveInvMonth.trim().isEmpty()) {
+            effectiveInvMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        }
 
         JdbcPagingItemReader<InvoiceAggregationRow> reader = new JdbcPagingItemReader<>();
 
@@ -76,13 +83,13 @@ public class InvoiceReader {
 
         reader.setQueryProvider(queryProvider);
         Map<String, Object> params = new HashMap<>();
-        params.put("invMonth", invMonth);
+        params.put("invMonth", effectiveInvMonth);
         params.put("minSubId", minSubId);
         params.put("maxSubId", maxSubId);
 
         reader.setParameterValues(params);
 
-        log.info("[Reader Param] invMonth = {}", invMonth);
+        log.info("[Reader Param] invMonth = {}", effectiveInvMonth);
         log.info("[Reader Param] minSubId = {}", minSubId);
         log.info("[Reader Param] maxSubId = {}", maxSubId);
 

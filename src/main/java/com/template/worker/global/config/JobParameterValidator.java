@@ -21,8 +21,9 @@ public class JobParameterValidator implements JobParametersValidator {
 
         String invMonth = parameters.getString("invMonth");
 
-        if (invMonth == null) {
-            throw new JobParametersInvalidException("invMonth is required. (format: yyyyMM)");
+        // invMonth가 없으면 통과 (Reader에서 현재 날짜를 기본값으로 사용함)
+        if (invMonth == null || invMonth.trim().isEmpty()) {
+            return;
         }
 
         try {
