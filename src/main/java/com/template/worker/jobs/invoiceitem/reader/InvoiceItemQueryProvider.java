@@ -5,14 +5,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvoiceItemQueryProvider {
 
-    public String fullUnionSql() {
-        return planSql()
-                + "\n UNION ALL \n"
-                + vasSql()
-                + "\n UNION ALL \n"
-                + microPaymentSql()
-                + "\n UNION ALL \n"
-                + discountSql();
+    public String planAndDiscountSql() {
+        return planSql() + "\n UNION ALL \n" + discountSql();
+    }
+
+    public String vasQuery() {
+        return vasSql();
+    }
+
+    public String microPaymentQuery() {
+        return microPaymentSql();
     }
 
     // 요금제 SQL

@@ -23,7 +23,7 @@ public class InvoiceItemWriter {
                 .dataSource(dataSource)
                 .sql(
                         """
-                    INSERT INTO invoice_item_test (
+                    INSERT INTO invoice_item (
                         sub_id,
                         inv_month,
                         name,
@@ -31,7 +31,8 @@ public class InvoiceItemWriter {
                         value_type,
                         value,
                         target_scope,
-                        created_at
+                        created_at,
+                        source_id
                     ) VALUES (
                         :subId,
                         :invMonth,
@@ -40,8 +41,10 @@ public class InvoiceItemWriter {
                         :valueType,
                         :value,
                         :targetScope,
-                        :createdAt
+                        :createdAt,
+                        :sourceId
                     )
+                    ON CONFLICT (source_id, type, inv_month) DO NOTHING
                 """)
                 .beanMapped()
                 .assertUpdates(false)

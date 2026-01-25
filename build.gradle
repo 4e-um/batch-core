@@ -45,10 +45,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // Monitoring & Observability
-    implementation 'io.micrometer:micrometer-registry-prometheus'
-    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
     implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+    implementation 'io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.11.0-alpha'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
