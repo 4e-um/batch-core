@@ -1,7 +1,6 @@
 package com.template.worker.global.runner;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.explore.JobExplorer;
@@ -9,6 +8,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import com.template.worker.batch.orchestrator.UsageOrchestrator;
 import com.template.worker.global.launcher.BatchJobLauncher;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BatchJobRunner implements ApplicationRunner {
 
     private final BatchJobLauncher batchJobLauncher;
+    private final UsageOrchestrator usageOrchestrator;
     private final JobRegistry jobRegistry;
     private final JobExplorer jobExplorer;
 
@@ -34,20 +35,24 @@ public class BatchJobRunner implements ApplicationRunner {
                                         new IllegalArgumentException(
                                                 "Missing --spring.batch.job.name"));
 
-        String invMonth =
-                args.getOptionValues("invMonth").stream()
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Missing invMonth=yyyyMM"));
-
         Job job = jobRegistry.getJob(jobName);
 
-        JobParameters params =
-                new JobParametersBuilder(jobExplorer)
-                        .addString("invMonth", invMonth)
-                        .addLong("run.id", System.currentTimeMillis())
-                        .toJobParameters();
+        JobParametersBuilder builder =
+                new JobParametersBuilder(jobExplorer).addLong("run.id", System.currentTimeMillis());
 
-        log.info("▶ BATCH START job={} invMonth={}", jobName, invMonth);
-        batchJobLauncher.launch(job, params);
+        // 1️⃣ Orchestrator Job (파라미터 없음)
+        if ("usageOrchestratorJob".equals(jobName)) {
+
+            log.info("▶ BATCH START (orchestrator) job={}", jobName);
+            usageOrchestrator.run();
+
+        } else {
+            String invMonth = args.getOptionValues("invMonth").get(0);
+
+            builder.addString("invMonth", invMonth);
+
+            log.info("▶ BATCH START (invMonth) job={} invMonth={}", jobName, invMonth);
+            batchJobLauncher.launch(job, builder.toJobParameters());
+        }
     }
 }
