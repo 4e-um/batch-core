@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class InvoiceSendWriter implements ItemWriter<InvoiceNotificationEvent>, ItemStream {
 
-    private static final String TOPIC = "invoice-noti";
+    private static final String TOPIC = "invoice";
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
