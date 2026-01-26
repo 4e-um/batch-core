@@ -13,6 +13,7 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.stereotype.Component;
 
 import io.micrometer.core.instrument.Counter;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -20,8 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class JobResultListener {
 
     private static final String HAS_DATA = "HAS_DATA";
-    private static final ExitStatus NO_DATA_EXIT_STATUS =
-            new ExitStatus("NO_DATA", "⚠ 데이터가 없습니다.");
+    private static final ExitStatus NO_DATA_EXIT_STATUS = new ExitStatus("NO_DATA", "⚠ 데이터가 없습니다.");
 
     private final JobLogger jobLogger;
     private final AtomicInteger activeJobsGauge;
