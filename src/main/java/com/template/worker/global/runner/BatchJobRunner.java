@@ -1,5 +1,9 @@
 package com.template.worker.global.runner;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -27,17 +31,21 @@ public class BatchJobRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         String jobName =
-                args.getOptionValues("spring.batch.job.name").stream()
-                        .findFirst()
+                Optional.ofNullable(args.getOptionValues("spring.batch.job.name"))
+                        .flatMap(values -> values.stream().findFirst())
                         .orElseThrow(
                                 () ->
                                         new IllegalArgumentException(
                                                 "Missing --spring.batch.job.name"));
 
+        // invMonth가 없으면 현재 년월(yyyyMM)을 기본값으로 생성
         String invMonth =
-                args.getOptionValues("invMonth").stream()
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException("Missing invMonth=yyyyMM"));
+                Optional.ofNullable(args.getOptionValues("invMonth"))
+                        .flatMap(values -> values.stream().findFirst())
+                        .orElseGet(
+                                () ->
+                                        LocalDate.now()
+                                                .format(DateTimeFormatter.ofPattern("yyyyMM")));
 
         Job job = jobRegistry.getJob(jobName);
 
