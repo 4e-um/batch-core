@@ -52,12 +52,18 @@ public class PartitionTimingListener implements StepExecutionListener {
         // Record Prometheus metrics with job_name tag
         if (stepExecution.getStatus() == BatchStatus.COMPLETED) {
             meterRegistry
-                    .counter("spring.batch.partition.count", "status", "COMPLETED", "job_name", jobName)
+                    .counter(
+                            "spring.batch.partition.count",
+                            "status",
+                            "COMPLETED",
+                            "job_name",
+                            jobName)
                     .increment();
             log.info("[METRICS] partitionCompletedCounter incremented for job={}", jobName);
         } else if (stepExecution.getStatus() == BatchStatus.FAILED) {
             meterRegistry
-                    .counter("spring.batch.partition.count", "status", "FAILED", "job_name", jobName)
+                    .counter(
+                            "spring.batch.partition.count", "status", "FAILED", "job_name", jobName)
                     .increment();
             log.info("[METRICS] partitionFailedCounter incremented for job={}", jobName);
         }
@@ -70,7 +76,11 @@ public class PartitionTimingListener implements StepExecutionListener {
                 .timer("spring.batch.step.duration", "job_name", jobName)
                 .record(Duration.ofMillis(duration));
 
-        log.info("[METRICS] stepItemCounter +{}, stepDurationTimer {}ms for job={}", readCount, duration, jobName);
+        log.info(
+                "[METRICS] stepItemCounter +{}, stepDurationTimer {}ms for job={}",
+                readCount,
+                duration,
+                jobName);
 
         return stepExecution.getExitStatus();
     }

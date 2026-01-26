@@ -70,7 +70,9 @@ public class JobResultListener {
 
             jobLogger.jobFailed(jobName, duration, cause);
         } else {
-            meterRegistry.counter("spring.batch.job.completed.total", "job_name", jobName).increment();
+            meterRegistry
+                    .counter("spring.batch.job.completed.total", "job_name", jobName)
+                    .increment();
             jobLogger.jobSuccess(jobName, duration);
         }
     }
