@@ -22,7 +22,7 @@ public class NotificationSendProcessor
         return new NotificationMessage(
                 UUID.randomUUID(),
                 item.id(),
-                101L,
+                2L,
                 Map.of(
                         "subId", item.subId(),
                         "phoneNumber", item.phoneNumber(),

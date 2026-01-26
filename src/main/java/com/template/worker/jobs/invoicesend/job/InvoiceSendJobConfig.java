@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.template.worker.global.listener.JobResultListener;
-import com.template.worker.jobs.invoicesend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoicesend.model.InvoiceNotificationEvent;
 import com.template.worker.jobs.invoicesend.model.InvoiceSendRecord;
 import com.template.worker.jobs.invoicesend.processor.InvoiceSendProcessor;
 import com.template.worker.jobs.invoicesend.writer.InvoiceSendWriter;
@@ -45,7 +45,7 @@ public class InvoiceSendJobConfig {
     @Bean
     public Step invoiceSendStep(JdbcCursorItemReader<InvoiceSendRecord> invoiceJoinReader) {
         return new StepBuilder("invoiceSendStep", jobRepository)
-                .<InvoiceSendRecord, InvoiceAggregateRecord>chunk(chunkSize, transactionManager)
+                .<InvoiceSendRecord, InvoiceNotificationEvent>chunk(chunkSize, transactionManager)
                 .reader(invoiceJoinReader)
                 .processor(invoiceSendProcessor)
                 .writer(invoiceSendWriter)

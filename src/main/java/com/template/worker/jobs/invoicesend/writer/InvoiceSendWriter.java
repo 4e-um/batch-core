@@ -7,7 +7,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.template.worker.jobs.invoicesend.model.InvoiceAggregateRecord;
+import com.template.worker.jobs.invoicesend.model.InvoiceNotificationEvent;
 import com.template.worker.jobs.invoicesend.processor.InvoiceSendProcessor;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class InvoiceSendWriter implements ItemWriter<InvoiceAggregateRecord>, ItemStream {
+public class InvoiceSendWriter implements ItemWriter<InvoiceNotificationEvent>, ItemStream {
 
     private static final String TOPIC = "invoice-noti";
 
@@ -24,12 +24,12 @@ public class InvoiceSendWriter implements ItemWriter<InvoiceAggregateRecord>, It
     private final ObjectMapper objectMapper;
     private final InvoiceSendProcessor processor;
 
-    private InvoiceAggregateRecord lastBuffered;
+    private InvoiceNotificationEvent lastBuffered;
 
     @Override
-    public void write(Chunk<? extends InvoiceAggregateRecord> items) throws Exception {
+    public void write(Chunk<? extends InvoiceNotificationEvent> items) throws Exception {
 
-        for (InvoiceAggregateRecord invoice : items) {
+        for (InvoiceNotificationEvent invoice : items) {
             send(invoice);
         }
 
@@ -53,8 +53,8 @@ public class InvoiceSendWriter implements ItemWriter<InvoiceAggregateRecord>, It
         }
     }
 
-    private void send(InvoiceAggregateRecord invoice) throws Exception {
+    private void send(InvoiceNotificationEvent invoice) throws Exception {
         String payload = objectMapper.writeValueAsString(invoice);
-        kafkaTemplate.send(TOPIC, String.valueOf(invoice.invId()), payload);
+        kafkaTemplate.send(TOPIC, String.valueOf(invoice.eventId()), payload);
     }
 }
