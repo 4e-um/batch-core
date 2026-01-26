@@ -65,8 +65,9 @@ public class InvoiceSendProcessor
 
     private InvoiceAggregateRecord buildAggregate() {
         return new InvoiceAggregateRecord(
-                currentInvoice.invId(),
+                2L,
                 currentInvoice.invNo(),
+                currentInvoice.invId(),
                 currentInvoice.subId(),
                 currentInvoice.invMonth(),
                 currentInvoice.phone_enc(),

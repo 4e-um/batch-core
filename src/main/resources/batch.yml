@@ -34,3 +34,11 @@ spring:
             core-pool-size: 4
             max-pool-size: 6
             queue-capacity: 1000
+
+      invoice-send:
+        chunk-size: 10000
+        fetch-size: 1000
+
+      usage:
+        chunk-size: 10000
+        fetch-size: 1000

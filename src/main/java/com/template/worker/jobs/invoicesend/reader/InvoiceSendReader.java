@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InvoiceSendReader {
 
+    @Value("${spring.batch.jobs.invoice-send.fetch-size}")
+    private int fetchSize;
+
     @Bean
     @StepScope
     public JdbcCursorItemReader<InvoiceSendRecord> invoiceJoinReader(
@@ -55,7 +58,7 @@ public class InvoiceSendReader {
                     ps.setString(1, invMonth);
                     ps.setString(2, invMonth);
                 });
-        reader.setFetchSize(1000);
+        reader.setFetchSize(fetchSize);
 
         reader.setRowMapper(new DataClassRowMapper<>(InvoiceSendRecord.class));
 
