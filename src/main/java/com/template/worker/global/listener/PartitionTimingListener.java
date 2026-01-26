@@ -55,11 +55,14 @@ public class PartitionTimingListener implements StepExecutionListener {
         // Record Prometheus metrics
         if (stepExecution.getStatus() == BatchStatus.COMPLETED) {
             partitionCompletedCounter.increment();
+            log.info("[METRICS] partitionCompletedCounter incremented");
         } else if (stepExecution.getStatus() == BatchStatus.FAILED) {
             partitionFailedCounter.increment();
+            log.info("[METRICS] partitionFailedCounter incremented");
         }
         stepItemCounter.increment(readCount);
         stepDurationTimer.record(duration, TimeUnit.MILLISECONDS);
+        log.info("[METRICS] stepItemCounter +{}, stepDurationTimer {}ms", readCount, duration);
 
         return stepExecution.getExitStatus();
     }

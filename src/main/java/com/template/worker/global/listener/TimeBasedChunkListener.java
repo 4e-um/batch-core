@@ -28,6 +28,7 @@ public class TimeBasedChunkListener implements ChunkListener {
 
         // Record chunk metric
         chunkCounter.increment();
+        log.debug("[METRICS] chunkCounter incremented, total={}", chunkCounter.count());
 
         long now = System.currentTimeMillis();
         long lastLogTime =
