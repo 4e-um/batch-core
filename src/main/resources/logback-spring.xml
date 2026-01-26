@@ -21,18 +21,26 @@
         <neverBlock>true</neverBlock>
     </appender>
 
-    <!-- prod/cloudrun: Console + OTEL (async) -->
-    <springProfile name="prod | cloudrun">
+    <!-- prod/cloudrun/local: Console + OTEL (async) -->
+    <springProfile name="prod | cloudrun | local">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC_OTEL"/>
         </root>
     </springProfile>
 
-    <!-- dev/local: Console only -->
-    <springProfile name="!prod &amp; !cloudrun">
+    <!-- dev: Console only (no OTEL) -->
+    <springProfile name="dev">
         <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- default (no profile): Console + OTEL -->
+    <springProfile name="default">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_OTEL"/>
         </root>
     </springProfile>
 </configuration>
