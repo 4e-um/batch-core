@@ -12,6 +12,7 @@ spring:
     name: batch-core
 
   main:
+    web-application-type: none
     time-zone: Asia/Seoul
   jackson:
     time-zone: Asia/Seoul
@@ -42,22 +43,29 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
-  tracing:
-    sampling:
-      probability: ${OTEL_SAMPLING_PROBABILITY:1.0}
   otlp:
-    tracing:
-      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/traces
-      connect-timeout: 5s
-      timeout: 10s
     metrics:
-      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/metrics
-      connect-timeout: 5s
-      timeout: 10s
-    logs:
-      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/logs
-      connect-timeout: 5s
-      timeout: 10s
+      export:
+        enabled: true
+        url: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/metrics
+        connect-timeout: 5s
+        read-timeout: 10s
+
+# OpenTelemetry Spring Boot Starter configuration
+otel:
+  exporter:
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}
+      protocol: http/protobuf
+  logs:
+    exporter: otlp
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: none
+  resource:
+    attributes:
+      service.name: ${spring.application.name}
 
 logging:
   level:

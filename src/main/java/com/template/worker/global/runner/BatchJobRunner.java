@@ -14,6 +14,10 @@ import com.template.worker.global.launcher.BatchJobLauncher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -28,12 +32,21 @@ public class BatchJobRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
 
         String jobName =
-                args.getOptionValues("spring.batch.job.name").stream()
-                        .findFirst()
+                Optional.ofNullable(args.getOptionValues("spring.batch.job.name"))
+                        .flatMap(values -> values.stream().findFirst())
                         .orElseThrow(
                                 () ->
                                         new IllegalArgumentException(
                                                 "Missing --spring.batch.job.name"));
+
+        // invMonth가 없으면 현재 년월(yyyyMM)을 기본값으로 생성
+        String invMonth =
+                Optional.ofNullable(args.getOptionValues("invMonth"))
+                        .flatMap(values -> values.stream().findFirst())
+                        .orElseGet(
+                                () ->
+                                        LocalDate.now()
+                                                .format(DateTimeFormatter.ofPattern("yyyyMM")));
 
         Job job = jobRegistry.getJob(jobName);
 
@@ -47,7 +60,6 @@ public class BatchJobRunner implements ApplicationRunner {
             usageOrchestrator.run();
 
         } else {
-            String invMonth = args.getOptionValues("invMonth").get(0);
 
             builder.addString("invMonth", invMonth);
 
