@@ -12,7 +12,7 @@ import org.springframework.batch.core.annotation.BeforeJob;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.stereotype.Component;
 
-import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +25,7 @@ public class JobResultListener {
 
     private final JobLogger jobLogger;
     private final AtomicInteger activeJobsGauge;
-    private final Counter jobCompletedCounter;
-    private final Counter jobFailedCounter;
+    private final MeterRegistry meterRegistry;
 
     @BeforeJob
     public void before(JobExecution jobExecution) {
@@ -52,7 +51,7 @@ public class JobResultListener {
         if (!hasData) {
             jobExecution.setStatus(BatchStatus.FAILED);
             jobExecution.setExitStatus(NO_DATA_EXIT_STATUS);
-            jobFailedCounter.increment();
+            meterRegistry.counter("spring.batch.job.failed.total", "job_name", jobName).increment();
 
             jobLogger.jobFailed(
                     jobName,
@@ -67,11 +66,11 @@ public class JobResultListener {
                     jobExecution.getAllFailureExceptions().isEmpty()
                             ? null
                             : jobExecution.getAllFailureExceptions().get(0);
-            jobFailedCounter.increment();
+            meterRegistry.counter("spring.batch.job.failed.total", "job_name", jobName).increment();
 
             jobLogger.jobFailed(jobName, duration, cause);
         } else {
-            jobCompletedCounter.increment();
+            meterRegistry.counter("spring.batch.job.completed.total", "job_name", jobName).increment();
             jobLogger.jobSuccess(jobName, duration);
         }
     }

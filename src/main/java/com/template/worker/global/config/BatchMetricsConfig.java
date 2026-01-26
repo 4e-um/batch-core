@@ -7,10 +7,8 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,81 +48,13 @@ public class BatchMetricsConfig {
         return value;
     }
 
-    // Completed/Failed job counters
-    @Bean
-    public Counter jobCompletedCounter() {
-        Counter counter =
-                Counter.builder("spring.batch.job.completed.total")
-                        .description("Total completed batch jobs")
-                        .register(meterRegistry);
-        log.info("[METRICS] Registered counter: spring.batch.job.completed.total");
-        return counter;
-    }
-
-    @Bean
-    public Counter jobFailedCounter() {
-        Counter counter =
-                Counter.builder("spring.batch.job.failed.total")
-                        .description("Total failed batch jobs")
-                        .register(meterRegistry);
-        log.info("[METRICS] Registered counter: spring.batch.job.failed.total");
-        return counter;
-    }
-
-    // Partition count by status
-    @Bean
-    public Counter partitionCompletedCounter() {
-        Counter counter =
-                Counter.builder("spring.batch.partition.count")
-                        .tag("status", "COMPLETED")
-                        .description("Total completed partitions")
-                        .register(meterRegistry);
-        log.info("[METRICS] Registered counter: spring.batch.partition.count (COMPLETED)");
-        return counter;
-    }
-
-    @Bean
-    public Counter partitionFailedCounter() {
-        Counter counter =
-                Counter.builder("spring.batch.partition.count")
-                        .tag("status", "FAILED")
-                        .description("Total failed partitions")
-                        .register(meterRegistry);
-        log.info("[METRICS] Registered counter: spring.batch.partition.count (FAILED)");
-        return counter;
-    }
-
-    // Chunk count
-    @Bean
-    public Counter chunkCounter() {
-        Counter counter =
-                Counter.builder("spring.batch.chunk.count")
-                        .description("Total chunks processed")
-                        .register(meterRegistry);
-        log.info("[METRICS] Registered counter: spring.batch.chunk.count");
-        return counter;
-    }
-
-    // Step item count
-    @Bean
-    public Counter stepItemCounter() {
-        Counter counter =
-                Counter.builder("spring.batch.step.item.count")
-                        .description("Total items processed by steps")
-                        .register(meterRegistry);
-        log.info("[METRICS] Registered counter: spring.batch.step.item.count");
-        return counter;
-    }
-
-    // Step duration histogram
-    @Bean
-    public Timer stepDurationTimer() {
-        Timer timer =
-                Timer.builder("spring.batch.step.duration")
-                        .publishPercentileHistogram()
-                        .description("Step duration histogram")
-                        .register(meterRegistry);
-        log.info("[METRICS] Registered timer: spring.batch.step.duration");
-        return timer;
-    }
+    // Note: Counter and Timer metrics are now created dynamically with job_name tag
+    // in the listener classes (JobResultListener, PartitionTimingListener, TimeBasedChunkListener)
+    // Metrics:
+    // - spring.batch.job.completed.total (job_name)
+    // - spring.batch.job.failed.total (job_name)
+    // - spring.batch.partition.count (status, job_name)
+    // - spring.batch.chunk.count (job_name)
+    // - spring.batch.step.item.count (job_name)
+    // - spring.batch.step.duration (job_name)
 }

@@ -8,8 +8,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.stereotype.Component;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Timer;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +21,7 @@ public class PartitionTimingListener implements StepExecutionListener {
     private static final String START_TIME = "startTime";
     private static final String HAS_DATA = "HAS_DATA";
 
-    private final Counter partitionCompletedCounter;
-    private final Counter partitionFailedCounter;
-    private final Counter stepItemCounter;
-    private final Timer stepDurationTimer;
+    private final MeterRegistry meterRegistry;
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
@@ -39,6 +35,7 @@ public class PartitionTimingListener implements StepExecutionListener {
 
         long readCount = stepExecution.getReadCount();
         long writeCount = stepExecution.getWriteCount();
+        String jobName = stepExecution.getJobExecution().getJobInstance().getJobName();
 
         log.info(
                 "[PARTITION] name={} read={} write={} time={}ms",
@@ -52,17 +49,28 @@ public class PartitionTimingListener implements StepExecutionListener {
             stepExecution.getJobExecution().getExecutionContext().put(HAS_DATA, true);
         }
 
-        // Record Prometheus metrics
+        // Record Prometheus metrics with job_name tag
         if (stepExecution.getStatus() == BatchStatus.COMPLETED) {
-            partitionCompletedCounter.increment();
-            log.info("[METRICS] partitionCompletedCounter incremented");
+            meterRegistry
+                    .counter("spring.batch.partition.count", "status", "COMPLETED", "job_name", jobName)
+                    .increment();
+            log.info("[METRICS] partitionCompletedCounter incremented for job={}", jobName);
         } else if (stepExecution.getStatus() == BatchStatus.FAILED) {
-            partitionFailedCounter.increment();
-            log.info("[METRICS] partitionFailedCounter incremented");
+            meterRegistry
+                    .counter("spring.batch.partition.count", "status", "FAILED", "job_name", jobName)
+                    .increment();
+            log.info("[METRICS] partitionFailedCounter incremented for job={}", jobName);
         }
-        stepItemCounter.increment(readCount);
-        stepDurationTimer.record(Duration.ofMillis(duration));
-        log.info("[METRICS] stepItemCounter +{}, stepDurationTimer {}ms", readCount, duration);
+
+        meterRegistry
+                .counter("spring.batch.step.item.count", "job_name", jobName)
+                .increment(readCount);
+
+        meterRegistry
+                .timer("spring.batch.step.duration", "job_name", jobName)
+                .record(Duration.ofMillis(duration));
+
+        log.info("[METRICS] stepItemCounter +{}, stepDurationTimer {}ms for job={}", readCount, duration, jobName);
 
         return stepExecution.getExitStatus();
     }
