@@ -57,6 +57,10 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    // Kafka
+    implementation 'org.apache.kafka:kafka-clients'
+    implementation 'org.springframework.kafka:spring-kafka'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.batch:spring-batch-test'
