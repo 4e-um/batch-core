@@ -4,8 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record InvoiceAggregateRecord(
+        Long templateGroupId,
+        Long eventId,
         Long invId,
-        Long invNo,
         Long subId,
         String invMonth,
         String phoneEnc,
