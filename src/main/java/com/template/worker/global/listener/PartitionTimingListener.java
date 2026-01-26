@@ -1,6 +1,6 @@
 package com.template.worker.global.listener;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
@@ -61,7 +61,7 @@ public class PartitionTimingListener implements StepExecutionListener {
             log.info("[METRICS] partitionFailedCounter incremented");
         }
         stepItemCounter.increment(readCount);
-        stepDurationTimer.record(duration, TimeUnit.MILLISECONDS);
+        stepDurationTimer.record(Duration.ofMillis(duration));
         log.info("[METRICS] stepItemCounter +{}, stepDurationTimer {}ms", readCount, duration);
 
         return stepExecution.getExitStatus();
