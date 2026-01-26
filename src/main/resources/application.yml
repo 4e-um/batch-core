@@ -50,6 +50,9 @@ management:
         url: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}/v1/metrics
         connect-timeout: 5s
         read-timeout: 10s
+        resource-attributes:
+          service.name: ${spring.application.name}
+        step: 10s
 
 # OpenTelemetry Spring Boot Starter configuration
 otel:
