@@ -1,5 +1,6 @@
 package com.template.worker.jobs.invoicesend.job;
 
+import com.template.worker.global.listener.JobResultListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -29,6 +30,7 @@ public class InvoiceSendJobConfig {
 
     private final InvoiceSendProcessor invoiceSendProcessor;
     private final InvoiceSendWriter invoiceSendWriter;
+    private final JobResultListener jobResultListener;
 
     @Bean
     public Job invoiceSendJob(Step invoiceSendStep) {
@@ -45,6 +47,7 @@ public class InvoiceSendJobConfig {
                 .reader(invoiceJoinReader)
                 .processor(invoiceSendProcessor)
                 .writer(invoiceSendWriter)
+                .listener(jobResultListener)
                 .build();
     }
 }
