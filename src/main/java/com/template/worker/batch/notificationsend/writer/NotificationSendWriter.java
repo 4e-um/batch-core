@@ -48,7 +48,7 @@ public class NotificationSendWriter implements ItemWriter<NotificationMessage> {
                 String key = String.valueOf(event.subscriptionInfo().get("subId"));
 
                 CompletableFuture<SendResult<String, String>> future =
-                        kafkaTemplate.send("usage-noti", key, payload);
+                        kafkaTemplate.send("usage", key, payload);
 
                 tasks.add(new NotificationSendTask(event, future));
             } catch (Exception e) {
