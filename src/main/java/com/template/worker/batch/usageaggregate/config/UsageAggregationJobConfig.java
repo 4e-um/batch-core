@@ -9,6 +9,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -28,7 +29,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsageAggregationJobConfig {
 
-    private static final int CHUNK_SIZE = 20_000;
+    @Value("${spring.batch.jobs.usage.chunk-size}")
+    private int chunkSize;
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager txManager;
@@ -60,7 +62,7 @@ public class UsageAggregationJobConfig {
     @Bean
     public Step dailyAggregationStep() {
         return new StepBuilder("dailyAggregationStep", jobRepository)
-                .<UsageLogRow, UsageDailyAggregation>chunk(CHUNK_SIZE, txManager)
+                .<UsageLogRow, UsageDailyAggregation>chunk(chunkSize, txManager)
                 .reader(usageLogDailyReader)
                 .processor(usageDailyProcessor)
                 .writer(usageSummaryDailyWriter)
@@ -72,7 +74,7 @@ public class UsageAggregationJobConfig {
     @Bean
     public Step monthlyAggregationStep() {
         return new StepBuilder("monthlyAggregationStep", jobRepository)
-                .<UsageLogRow, UsageMonthlyAggregation>chunk(CHUNK_SIZE, txManager)
+                .<UsageLogRow, UsageMonthlyAggregation>chunk(chunkSize, txManager)
                 .reader(usageLogMonthlyReader)
                 .processor(usageMonthlyProcessor)
                 .writer(usageSummaryMonthlyWriter)

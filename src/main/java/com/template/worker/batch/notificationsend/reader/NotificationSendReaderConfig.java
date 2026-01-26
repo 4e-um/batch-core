@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,6 +12,9 @@ import com.template.worker.batch.usagenotification.dto.UsageNotificationOutboxRo
 
 @Configuration
 public class NotificationSendReaderConfig {
+
+    @Value("${spring.batch.jobs.usage.fetch-size}")
+    private int fetchSize;
 
     @Bean(name = "notificationSendOutboxReader")
     public JdbcCursorItemReader<UsageNotificationOutboxRow> notificationSendOutboxReader(
@@ -43,7 +47,7 @@ public class NotificationSendReaderConfig {
                 .name("notificationSendOutboxReader")
                 .dataSource(dataSource)
                 .sql(sql)
-                .fetchSize(1_000)
+                .fetchSize(fetchSize)
                 .rowMapper(
                         (rs, rowNum) ->
                                 new UsageNotificationOutboxRow(

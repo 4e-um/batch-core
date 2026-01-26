@@ -16,6 +16,9 @@ import com.template.worker.batch.usagenotification.dto.UsageNotificationSource;
 @Configuration
 public class UsageNotificationMonthlyReaderConfig {
 
+    @Value("${spring.batch.jobs.usage.fetch-size}")
+    private int fetchSize;
+
     @Bean(name = "usageNotificationMonthlyReader")
     @StepScope
     public JdbcCursorItemReader<UsageNotificationSource> usageNotificationMonthlyReader(
@@ -46,7 +49,7 @@ public class UsageNotificationMonthlyReaderConfig {
                 .name("usageNotificationMonthlyReader")
                 .dataSource(dataSource)
                 .sql(sql)
-                .fetchSize(1000)
+                .fetchSize(fetchSize)
                 .preparedStatementSetter(
                         ps -> {
                             ps.setObject(1, fromTime);

@@ -7,6 +7,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -23,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InvoiceSendJobConfig {
 
-    private static final int CHUNK_SIZE = 10000;
+    @Value("${spring.batch.jobs.invoice-send.chunk-size}")
+    private int chunkSize;
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -43,7 +45,7 @@ public class InvoiceSendJobConfig {
     @Bean
     public Step invoiceSendStep(JdbcCursorItemReader<InvoiceSendRecord> invoiceJoinReader) {
         return new StepBuilder("invoiceSendStep", jobRepository)
-                .<InvoiceSendRecord, InvoiceAggregateRecord>chunk(CHUNK_SIZE, transactionManager)
+                .<InvoiceSendRecord, InvoiceAggregateRecord>chunk(chunkSize, transactionManager)
                 .reader(invoiceJoinReader)
                 .processor(invoiceSendProcessor)
                 .writer(invoiceSendWriter)

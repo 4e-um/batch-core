@@ -8,6 +8,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -23,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationSendJobConfig {
 
-    private static final int CHUNK_SIZE = 5000;
+    @Value("${spring.batch.jobs.usage.chunk-size}")
+    private int chunkSize;
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager txManager;
@@ -44,7 +46,7 @@ public class NotificationSendJobConfig {
     @Bean
     public Step notificationSendStep() {
         return new StepBuilder("notificationSendStep", jobRepository)
-                .<UsageNotificationOutboxRow, NotificationMessage>chunk(CHUNK_SIZE, txManager)
+                .<UsageNotificationOutboxRow, NotificationMessage>chunk(chunkSize, txManager)
                 .reader(outboxReader)
                 .processor(notificationSendProcessor)
                 .writer(notificationSendWriter)

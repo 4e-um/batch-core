@@ -16,6 +16,9 @@ import com.template.worker.batch.usageaggregate.dto.UsageLogRow;
 @Configuration
 public class UsageLogDailyReaderConfig {
 
+    @Value("${spring.batch.jobs.usage.fetch-size}")
+    private int fetchSize;
+
     @Bean(name = "usageLogDailyReader")
     @StepScope
     public JdbcCursorItemReader<UsageLogRow> usageLogDailyReader(
@@ -41,7 +44,7 @@ public class UsageLogDailyReaderConfig {
                 .name("usageLogDailyReader")
                 .dataSource(dataSource)
                 .sql(sql)
-                .fetchSize(1000)
+                .fetchSize(fetchSize)
                 .preparedStatementSetter(
                         ps -> {
                             ps.setObject(1, fromTime);

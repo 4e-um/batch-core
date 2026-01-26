@@ -9,6 +9,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -25,7 +26,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UsageNotificationJobConfig {
 
-    private static final int CHUNK_SIZE = 10_000;
+    @Value("${spring.batch.jobs.usage.chunk-size}")
+    private int chunkSize;
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager txManager;
@@ -53,7 +55,7 @@ public class UsageNotificationJobConfig {
     @JobScope
     public Step usageNotificationMonthlyStep() {
         return new StepBuilder("usageNotificationMonthlyStep", jobRepository)
-                .<UsageNotificationSource, UsageNotificationCandidate>chunk(CHUNK_SIZE, txManager)
+                .<UsageNotificationSource, UsageNotificationCandidate>chunk(chunkSize, txManager)
                 .reader(usageNotificationMonthlyReader)
                 .processor(usageNotificationProcessor)
                 .writer(usageNotificationWriter)
@@ -65,7 +67,7 @@ public class UsageNotificationJobConfig {
     @JobScope
     public Step usageNotificationDailyStep() {
         return new StepBuilder("usageNotificationDailyStep", jobRepository)
-                .<UsageNotificationSource, UsageNotificationCandidate>chunk(CHUNK_SIZE, txManager)
+                .<UsageNotificationSource, UsageNotificationCandidate>chunk(chunkSize, txManager)
                 .reader(usageNotificationDailyReader)
                 .processor(usageNotificationProcessor)
                 .writer(usageNotificationWriter)
