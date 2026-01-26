@@ -1,6 +1,5 @@
 package com.template.worker.jobs.invoicesend.job;
 
-import com.template.worker.global.listener.JobResultListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -12,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.template.worker.global.listener.JobResultListener;
 import com.template.worker.jobs.invoicesend.model.InvoiceAggregateRecord;
 import com.template.worker.jobs.invoicesend.model.InvoiceSendRecord;
 import com.template.worker.jobs.invoicesend.processor.InvoiceSendProcessor;
