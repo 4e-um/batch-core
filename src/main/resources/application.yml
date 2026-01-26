@@ -12,6 +12,7 @@ spring:
     name: batch-core
 
   main:
+    web-application-type: none
     time-zone: Asia/Seoul
   jackson:
     time-zone: Asia/Seoul
