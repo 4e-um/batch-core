@@ -6,19 +6,27 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.stereotype.Component;
 
+import io.micrometer.core.instrument.Counter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class TimeBasedChunkListener implements ChunkListener {
 
     private static final long LOG_INTERVAL_MS = 10_000;
     private static final String LAST_LOG_TIME_KEY = "lastLogTime";
 
+    private final Counter chunkCounter;
+
     @Override
     public void afterChunk(ChunkContext context) {
         StepExecution stepExecution = context.getStepContext().getStepExecution();
         ExecutionContext executionContext = stepExecution.getExecutionContext();
+
+        // Record chunk metric
+        chunkCounter.increment();
 
         long now = System.currentTimeMillis();
         long lastLogTime =
