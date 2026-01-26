@@ -120,11 +120,11 @@ public class BatchMetricsConfig {
     @Bean
     public Timer stepDurationTimer() {
         Timer timer =
-                Timer.builder("spring.batch.step.duration.seconds")
+                Timer.builder("spring.batch.step.duration")
                         .publishPercentileHistogram()
                         .description("Step duration histogram")
                         .register(meterRegistry);
-        log.info("[METRICS] Registered timer: spring.batch.step.duration.seconds");
+        log.info("[METRICS] Registered timer: spring.batch.step.duration");
         return timer;
     }
 }
